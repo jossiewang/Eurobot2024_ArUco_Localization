@@ -25,4 +25,8 @@
     <!-- RViz -->
     <node name="rviz" type="rviz" pkg="rviz" args="-d $(find simulation)/rviz/sim.rviz"/>
 
+    <!-- cmd_vel publisher -->
+    <!-- close it if you have another publisher -->
+    <node name="robot_steering" type="rqt_robot_steering" pkg="rqt_robot_steering"/>
+
 </launch>
