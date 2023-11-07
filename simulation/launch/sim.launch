@@ -1,0 +1,32 @@
+<launch>
+
+    <!-- Launch gazebo simulation -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+
+        <!-- load world -->
+        <arg name="world_name" value="$(find simulation)/world/sim_blue.world"/>
+        
+        <arg name="use_sim_time" value="true"/>
+        <arg name="gui" value="true"/>
+        <arg name="headless" value="false"/>
+    </include>
+
+    <!-- Load Robot into gazebo -->
+    <!-- No need to understand, just launch it -->
+    <param name="descriptions" command="$(find xacro)/xacro --inorder $(find simulation)/robot/diff_drive.urdf.xacro"/> 
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_diff_drive" 
+          args="-urdf -model diff_drive -x 1.0 -y 1.0 -z 0.0 -param descriptions" />
+
+    <!-- Static transform -->
+    <!-- add lidar and imu frame -->
+    <node name="base_footprint_to_scan" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 base_footprint base_scan"/>
+    <node name="imu_link_to_scan" pkg="tf2_ros" type="static_transform_publisher" args="0 0 0 0 0 0 base_footprint imu_link"/>
+
+    <!-- RViz -->
+    <node name="rviz" type="rviz" pkg="rviz" args="-d $(find simulation)/rviz/sim.rviz"/>
+
+    <!-- cmd_vel publisher -->
+    <!-- close it if you have another publisher -->
+    <node name="robot_steering" type="rqt_robot_steering" pkg="rqt_robot_steering"/>
+
+</launch>

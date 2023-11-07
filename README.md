@@ -14,7 +14,7 @@
              ├── docker
              ├── local_filter
              ├── odometry
-             ├── sim
+             ├── simulation
              ├── firmware
              ├   └── config
              ├   ├   ├── lidar_run.yaml
