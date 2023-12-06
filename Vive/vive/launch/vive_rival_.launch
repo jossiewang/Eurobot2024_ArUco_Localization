@@ -11,9 +11,9 @@
     <arg name="print_freq_" default="0.5"/>
     <arg name="unit_" default="1"/>
     <arg name="side" default="b"/>
-    <!arg name="print_info_" default="false"/> <!-- vive_world -->
-    <!arg name="print_active_" default="true"/> <!-- vive_rival -->
-    
+    <!--arg name="print_info_" default="false"/--> <!-- vive_world -->
+    <!--arg name="print_active_" default="true"/--> <!-- vive_rival -->
+
 
     <arg name="print_world_active" default="false"/> <!-- vive_world -->
     <arg name="print_rival_active" default="true"/> <!-- vive_rival -->
@@ -24,14 +24,14 @@
 
     <group ns="rival" if="$(arg rival_active)">
         <include file="$(find vive)/launch/vive_world.launch">
-            <arg name="survive3_active" value="$(arg rival1_active)"/>
-            <arg name="survive3_tracker" value="$(arg rival1_tracker)"/>
+            <arg name="survive_active" value="$(arg rival_active)"/>
+            <arg name="survive_tracker" value="$(arg rival_tracker)"/>
             <arg name="side_" value="$(arg side)"/>
             <arg name="print_world_active" value="$(arg print_world_active)"/>
         </include>
 
         <node name="vive_rival" pkg="vive" type="vive_rival" output="screen">
-            <param name="tracker" type="string" value="$(arg rival1_tracker)"/>  <!-- need to check -->
+            <param name="tracker" type="string" value="$(arg rival_tracker)"/>  <!-- need to check -->
             <param name="map" type="string" value="survive3_map"/>  <!-- need to check -->
             <param name="world" type="string" value="survive3_world"/>  <!-- need to check -->
             <param name="topic_name" type="string" value="/rival1/odom/tracker"/>  <!-- need to check -->
