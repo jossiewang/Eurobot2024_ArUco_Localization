@@ -1,0 +1,31 @@
+<launch>
+    <arg name="frequency" default="100"/>  <!--the publishing freqency is this value divided by 5-->
+    <arg name="print_unit" default="100"/>
+    <arg name="side_" default="g"/>
+    <arg name="tracker_" default="trackerC"/>
+    
+    <node name="vive_world" pkg="vive" type="vive_world" output="screen">
+        <rosparam file="$(find vive)/param/vive_calibrate.yaml" command="load" /> <!-- tf_to_map -->
+        <param name ="tracker" type="string" value="$(arg tracker_)"/>
+        <param name ="survive_prefix" type="string" value="survive_"/>
+        <param name ="vel_topic_name" type="string" value="tracker_vel"/>
+        <param name ="run_service_name" type="string" value="survive_world_is_running"/>
+        <param name ="max_distance_bt_maps" type="double" value="0.2"/>
+        <param name ="print" type="bool" value="false"/>
+        <param name ="freq" type="int" value="$(arg frequency)"/>
+        <param name ="unit" type="int" value="$(arg print_unit)"/>
+        <param name ="side" type="string" value="$(arg side_)"/>
+    </node>
+    <node pkg="vive" type="vive_calibrate2" name="vive_calibrate2" output="screen">
+        <rosparam file="$(find vive)/param/vive_calibrate.yaml" command="load" /> <!-- tf_to_map -->
+        <param name="robot_name" type="string" value="robotcali"/>
+        <param name="survive_prefix" type="string" value="survive_"/>
+        <param name="tracker" type="string" value="$(arg tracker_)"/>
+        <param name="freq" type="double" value="$(arg frequency)"/>
+        <param name="unit" type="double" value="$(arg print_unit)"/>
+        <param name="rot_from_tracker_W" type="double" value="1"/>
+        <param name="rot_from_tracker_X" type="double" value="0"/>
+        <param name="rot_from_tracker_Y" type="double" value="0"/>
+        <param name="rot_from_tracker_Z" type="double" value="0"/>
+    </node>
+</launch>

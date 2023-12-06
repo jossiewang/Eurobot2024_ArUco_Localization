@@ -1,0 +1,52 @@
+<launch>
+    <!-- <include file="$(find vive)/launch/vive_world.launch"/> -->
+
+    <arg name="rival2_active" default="true"/>
+    <arg name="rival2_tracker" default="trackerD"/>
+    <arg name="lowpass_active_" default="true"/>
+    <arg name="max_vel_active_" default="false"/>
+    <arg name="alpha_" default="0.05"/>
+    <arg name="del_vel_" default="1.2"/>
+    <arg name="max_vel_" default="1.5"/>
+    <arg name="tole_" default="0.05"/>
+    <arg name="freq_" default="20"/>
+    <arg name="print_freq_" default="0.5"/>
+    <arg name="unit_" default="1"/>
+    <arg name="side" default="b"/>
+    <arg name="print_info_" default="false"/> <!-- vive_world -->
+    <arg name="print_active_" default="true"/> <!-- vive_rival -->
+    <arg name="pub_debug_active_" default="false"/> <!-- vive_rival raw/diff velocity data pub -->
+    <arg name="pub_vel_category_" default="diff"/> <!-- vive_rival velocity category-->
+
+    <group ns="rival2" if="$(arg rival2_active)">
+        <include file="$(find vive)/launch/vive_world.launch">
+            <arg name="survive4_active" value="$(arg rival2_active)"/>
+            <arg name="survive4_tracker" value="$(arg rival2_tracker)"/>
+            <arg name="side_" value="$(arg side)"/>
+            <arg name="print_info" value="$(arg print_info_)"/>
+        </include>
+
+        <node name="vive_rival" pkg="vive" type="vive_rival" output="screen">
+            <param name="tracker" type="string" value="$(arg rival2_tracker)"/>  <!-- need to check -->
+            <param name="map" type="string" value="survive4_map"/>  <!-- need to check -->
+            <param name="world" type="string" value="survive4_world"/>  <!-- need to check -->
+            <param name="topic_name" type="string" value="/rival2/odom/tracker"/>  <!-- need to check -->
+            <param name="tracker_vel_topic" type="string" value="/rival2/tracker_vel"/>
+            
+            <param name="lowpass_active" type="bool" value="$(arg lowpass_active_)"/>
+            <param name="max_vel_active" type="bool" value="$(arg max_vel_active_)"/>
+            <param name="alpha" type="double" value="$(arg alpha_)"/>
+            <param name="del_vel" type="double" value="$(arg del_vel_)"/>
+            <param name="max_vel" type="double" value="$(arg max_vel_)"/>
+            <param name="tole" type="double" value="$(arg tole_)"/>
+            <param name="pub_vel_category" type="string" value="$(arg pub_vel_category_)"/>
+            
+            <param name="print_freq" type="double" value="$(arg print_freq_)"/>
+            <param name="print_active" type="bool" value="$(arg print_active_)"/>
+            <param name="pub_debug_active" type="bool" value="$(arg pub_debug_active_)"/>
+            <param name="freq" type="int" value="$(arg freq_)"/>
+            <param name="unit" type="int" value="$(arg unit_)"/>
+        </node>
+    </group>
+
+</launch>
