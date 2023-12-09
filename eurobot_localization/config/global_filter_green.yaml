@@ -1,0 +1,32 @@
+# ------------------
+# Beacon setting
+# Blue
+beacon_ax: 0.05
+beacon_ay: 2.094
+
+beacon_bx: 2.95
+beacon_by: 2.094
+
+beacon_cx: 1.5
+beacon_cy: -0.094
+# ------------------
+# Initial pose
+# robot1 blue ( white machine )
+# white + ( bot == 1 )
+# black + ( bot == 2 )
+
+robot1_initial_x: 1.875
+robot1_initial_y: 1.750
+robot1_initial_theta: -135
+
+# ------------------
+# Initial pose
+# robot2 blue ( black machine )
+# black + ( bot == 1 )
+# white + ( bot == 1 )
+
+robot2_initial_x: 1.125
+robot2_initial_y: 0.250
+robot2_initial_theta: 45
+
+# ------------------
