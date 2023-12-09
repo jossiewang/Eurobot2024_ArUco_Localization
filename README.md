@@ -14,6 +14,7 @@ source ~/.bashrc
 ```
 
 ## Structure
+
 ```
 .
 └──  Your Workspace
@@ -21,25 +22,27 @@ source ~/.bashrc
      └── devel
      └── src
          └── Eurobot-2024-Localization
-             ├── docker
-             ├── local_filter
-             ├── odometry
-             ├── simulation
-             ├── vive
-             ├── firmware
-             ├   └── config
-             ├   ├   ├── lidar_run.yaml
-             ├   ├   └── imu_run.yaml
-             ├   └── launch
-             ├       ├── rosserial.launch
-             ├       ├── lidar_run.launch
-             ├       └── imu_run.launch
-             ├── lidar_dependency
-             ├   ├── YDLiDAR-SDK
-             ├   └── ydlidar-ros-driver
-             └── imu_dependency
-                 └── phidget-driver
+             ├── .YDLidar-SDK
+             ├── docker
+             ├── eurobot_localization
+             ├── lidar
+             │   ├── lidar_localization
+             │   └── ydlidar_ros_driver
+             ├── local_filter
+             │   ├── imu
+             │   │   ├── imu_drive
+             │   │   └── phidgets_drivers
+             │   ├── local_filter
+             │   └── odometry
+             │       ├── odometry
+             │       ├── rosserial_msgs
+             │       └── rosserial_server
+             ├── simulation
+             └── vive
+
 ```
+
+
 ## Architecture
 > Local filter ( IMU + Odometry ) + global filter ( LiDAR )
 
