@@ -1,4 +1,6 @@
 <launch>
+    <arg name="sec_LH" default="true"/> <!-- true = 2 or false = 1 -->
+
     <arg name="rival_active" default="true"/>
     <arg name="rival_tracker" default="trackerD"/>
     <arg name="lowpass_active_" default="true"/>
@@ -15,7 +17,7 @@
     <arg name="print_rival_active" default="true"/> <!-- vive_rival -->
     <arg name="pub_debug_active_" default="false"/> <!-- vive_rival raw/diff velocity data pub -->
     <arg name="pub_vel_category_" default="diff"/> <!-- vive_rival velocity category (diff/api)-->
-
+    
 
     <group ns="rival" if="$(arg rival_active)">
         <include file="$(find vive)/launch/vive_world.launch">

@@ -30,7 +30,8 @@ typedef struct vivePose {
     double yaw, roll, pitch;
 }VIVEPOSE;
 
-VIVEPOSE LH0, LH1, tracker_abs;
+// VIVEPOSE LH0, LH1, tracker_abs;
+VIVEPOSE LH0, tracker_abs;
 
 tf::StampedTransform transform_LH0ToMap0;
 tf::StampedTransform transform_LH1ToMap1;
@@ -59,13 +60,13 @@ void initialize(ros::NodeHandle nh_) {
     // nh_.getParam("LH0_yaw", LH0.yaw);
     // nh_.getParam("LH0_pitch", LH0.pitch);
     // nh_.getParam("LH0_roll", LH0.roll);
-    nh_.getParam(node_name + "/LH1_x", LH1.x);
-    nh_.getParam(node_name + "/LH1_y", LH1.y);
-    nh_.getParam(node_name + "/LH1_z", LH1.z);
-    nh_.getParam(node_name + "/LH1_W", LH1.W);
-    nh_.getParam(node_name + "/LH1_X", LH1.X);
-    nh_.getParam(node_name + "/LH1_Y", LH1.Y);
-    nh_.getParam(node_name + "/LH1_Z", LH1.Z);
+    // nh_.getParam(node_name + "/LH1_x", LH1.x);
+    // nh_.getParam(node_name + "/LH1_y", LH1.y);
+    // nh_.getParam(node_name + "/LH1_z", LH1.z);
+    // nh_.getParam(node_name + "/LH1_W", LH1.W);
+    // nh_.getParam(node_name + "/LH1_X", LH1.X);
+    // nh_.getParam(node_name + "/LH1_Y", LH1.Y);
+    // nh_.getParam(node_name + "/LH1_Z", LH1.Z);
     // nh_.getParam("LH1_yaw", LH1.yaw);
     // nh_.getParam("LH1_pitch", LH1.pitch);
     // nh_.getParam("LH1_roll", LH1.roll);
@@ -79,8 +80,8 @@ void initialize(ros::NodeHandle nh_) {
 
     transform_LH0ToMap0.setOrigin(tf::Vector3(LH0.x, LH0.y, LH0.z));
     transform_LH0ToMap0.setRotation(tf::Quaternion(LH0.X, LH0.Y, LH0.Z, LH0.W));
-    transform_LH1ToMap1.setOrigin(tf::Vector3(LH1.x, LH1.y, LH1.z));
-    transform_LH1ToMap1.setRotation(tf::Quaternion(LH1.X, LH1.Y, LH1.Z, LH1.W));
+    // transform_LH1ToMap1.setOrigin(tf::Vector3(LH1.x, LH1.y, LH1.z));
+    // transform_LH1ToMap1.setRotation(tf::Quaternion(LH1.X, LH1.Y, LH1.Z, LH1.W));
     transform_trackerAbsToMap.setOrigin(tf::Vector3(tracker_abs.x, tracker_abs.y, tracker_abs.z));
     transform_trackerAbsToMap.setRotation(tf::Quaternion(tracker_abs.X, tracker_abs.Y, tracker_abs.Z, tracker_abs.W));
 }
@@ -97,11 +98,15 @@ int main(int argc, char** argv) {
     tf::TransformBroadcaster br;
     tf::TransformListener listener;
 
+    int None_printed = 0;
+
     initialize(nh);
 
     SurviveSimpleContext* actx = survive_simple_init_with_logger(argc, argv, log_fn);
     if (actx == 0) // implies -help or similiar
         return 0;
+
+    // std::cout<<actx->ctx->activeLighthouses<<std::endl;
 
     double start_time = OGGetAbsoluteTime();
     survive_simple_start_thread(actx);
@@ -133,56 +138,65 @@ int main(int argc, char** argv) {
                     velocity.AxisAngleRot[0], velocity.AxisAngleRot[1],
                     velocity.AxisAngleRot[2], velocity.AxisAngleRot[3]);
 
-                // if (survive_simple_object_get_type(it) == SurviveSimpleObject_OBJECT) {
-                //     printf("tracker tf\n");
-                //     transform_surviveWorldToTracker.setOrigin(tf::Vector3(pose.Pos[0], pose.Pos[1], pose.Pos[2]));
-                //     transform_surviveWorldToTracker.setRotation(tf::Quaternion(pose.Rot[1], pose.Rot[2], pose.Rot[3], pose.Rot[0]));
-                // }
-                // else if (survive_simple_object_get_type(it) == SurviveSimpleObject_LIGHTHOUSE) {
-                //     int cmp;
-                //     cmp = strcmp(survive_simple_serial_number(it), "LHB-400B1A3E");
-                //     if (cmp == 0) {
-                //         printf("LH0 tf\n");
-                //         transform_surviveWorldToLH0.setOrigin(tf::Vector3(pose.Pos[0], pose.Pos[1], pose.Pos[2]));
-                //         transform_surviveWorldToLH0.setRotation(tf::Quaternion(pose.Rot[1], pose.Rot[2], pose.Rot[3], pose.Rot[0]));
-                //     }
-                //     cmp = strcmp(survive_simple_serial_number(it), "LHB-D4EEE18");
-                //     if (cmp == 0) {
-                //         printf("LH1 tf\n");
-                //         transform_surviveWorldToLH1.setOrigin(tf::Vector3(pose.Pos[0], pose.Pos[1], pose.Pos[2]));
-                //         transform_surviveWorldToLH1.setRotation(tf::Quaternion(pose.Rot[1], pose.Rot[2], pose.Rot[3], pose.Rot[0]));
+                if (survive_simple_object_get_type(it) == SurviveSimpleObject_OBJECT) {
+                    printf("tracker tf\n\n");
+                    transform_surviveWorldToTracker.setOrigin(tf::Vector3(pose.Pos[0], pose.Pos[1], pose.Pos[2]));
+                    transform_surviveWorldToTracker.setRotation(tf::Quaternion(pose.Rot[1], pose.Rot[2], pose.Rot[3], pose.Rot[0]));
+                }
+                else if (survive_simple_object_get_type(it) == SurviveSimpleObject_LIGHTHOUSE) {
+                    int cmp;
+                    cmp = strcmp(survive_simple_serial_number(it), "LHB-400B1A3E");
+                    if (cmp == 0) { //i.e. survive_simple_serial_number(it) == "LHB-400B1A3E"
+                        printf("LH0 tf\n\n");
+                        transform_surviveWorldToLH0.setOrigin(tf::Vector3(pose.Pos[0], pose.Pos[1], pose.Pos[2]));
+                        transform_surviveWorldToLH0.setRotation(tf::Quaternion(pose.Rot[1], pose.Rot[2], pose.Rot[3], pose.Rot[0]));
+                    }
+                    cmp = strcmp(survive_simple_serial_number(it), "LHB-D4EEE18");
+                    if (cmp == 0) { //i.e. survive_simple_serial_number(it) == "LHB-D4EEE18"
+                        printf("LH1 tf\n\n");
+                        transform_surviveWorldToLH1.setOrigin(tf::Vector3(pose.Pos[0], pose.Pos[1], pose.Pos[2]));
+                        transform_surviveWorldToLH1.setRotation(tf::Quaternion(pose.Rot[1], pose.Rot[2], pose.Rot[3], pose.Rot[0]));
 
-                //     }
-                // }
+                    }
+                }
             }
 
-            // printf("send\n");
-            // br.sendTransform(tf::StampedTransform(transform_surviveWorldToTracker, ros::Time::now(), "survive_world", "tracker"));
-            // br.sendTransform(tf::StampedTransform(transform_surviveWorldToLH0, ros::Time::now(), "survive_world", "LH0"));
+            //send tf
+            printf("send\n");
+            try{
+            br.sendTransform(tf::StampedTransform(transform_surviveWorldToTracker, ros::Time::now(), "survive_world", "tracker"));
+            // br.sendTransform(tf::StampedTransform(transform_surviveWorldToLH0, ros::Time::now(), "survive_world", "tracker"));
+            br.sendTransform(tf::StampedTransform(transform_surviveWorldToLH0, ros::Time::now(), "survive_world", "LH0"));
             // br.sendTransform(tf::StampedTransform(transform_surviveWorldToLH1, ros::Time::now(), "survive_world", "LH1"));
-            // br.sendTransform(tf::StampedTransform(transform_LH0ToMap0, ros::Time::now(), "LH0", "map0"));
+            br.sendTransform(tf::StampedTransform(transform_LH0ToMap0, ros::Time::now(), "LH0", "map0"));
             // br.sendTransform(tf::StampedTransform(transform_LH1ToMap1, ros::Time::now(), "LH1", "map1"));
-            // br.sendTransform(tf::StampedTransform(transform_trackerAbsToMap, ros::Time::now(), "tracker", "mapAbs"));
-
-            // printf("lookup and print\n");
-            // try {
-            //     listener.lookupTransform("map0", "tracker", ros::Time(0), transform_map0ToTracker);
-            //     listener.lookupTransform("map1", "tracker", ros::Time(0), transform_map1ToTracker);
-            //     listener.lookupTransform("tracker", "LH0", ros::Time(0), transform_LH0ToTracker);
-            //     listener.lookupTransform("tracker", "LH1", ros::Time(0), transform_LH1ToTracker);
-            // }
-            // catch (tf::TransformException& ex) {
-            //     ROS_ERROR("%s", ex.what());
-            // }
-            // printf("transform: map0 to tracker\n");
-            // printf("%f, %f, %f\n", transform_map0ToTracker.getOrigin().x(),
-            //     transform_map0ToTracker.getOrigin().y(), transform_map0ToTracker.getOrigin().z());
+            br.sendTransform(tf::StampedTransform(transform_trackerAbsToMap, ros::Time::now(), "tracker", "mapAbs"));
+            }
+            catch (tf::TransformException& ex) {
+                ROS_ERROR("send error: %s", ex.what());
+            }
+            
+            //lookup tf
+            printf("lookup and print\n");
+            try {
+                // listener.lookupTransform("map0", "tracker", ros::Time(0), transform_map0ToTracker);
+                listener.lookupTransform("trcker", "map0", ros::Time(0), transform_map0ToTracker);
+                // listener.lookupTransform("map1", "tracker", ros::Time(0), transform_map1ToTracker);
+                listener.lookupTransform("tracker", "LH0", ros::Time(0), transform_LH0ToTracker);
+                // listener.lookupTransform("tracker", "LH1", ros::Time(0), transform_LH1ToTracker);
+            }
+            catch (tf::TransformException& ex) {
+                ROS_ERROR("lookup error: %s", ex.what());
+            }
+            printf("transform: map0 to tracker\n");
+            printf("(x,y,z): (%f, %f, %f)\n", transform_map0ToTracker.getOrigin().x(),
+                transform_map0ToTracker.getOrigin().y(), transform_map0ToTracker.getOrigin().z());
             // printf("transform: map1 to tracker\n");
             // printf("%f, %f, %f\n", transform_map1ToTracker.getOrigin().x(),
             //     transform_map1ToTracker.getOrigin().y(), transform_map1ToTracker.getOrigin().z());
-            // printf("transform: LH0 to tracker\n");
-            // printf("%f, %f, %f\n", transform_LH0ToTracker.getOrigin().x(),
-            //     transform_LH0ToTracker.getOrigin().y(), transform_LH0ToTracker.getOrigin().z());
+            printf("transform: LH0 to tracker\n");
+            printf("(x,y,z): (%f, %f, %f)\n", transform_LH0ToTracker.getOrigin().x(),
+                transform_LH0ToTracker.getOrigin().y(), transform_LH0ToTracker.getOrigin().z());
             // printf("transform: LH1 to tracker\n");
             // printf("%f, %f, %f\n", transform_LH1ToTracker.getOrigin().x(),
             //     transform_LH1ToTracker.getOrigin().y(), transform_LH1ToTracker.getOrigin().z());
@@ -231,6 +245,10 @@ int main(int argc, char** argv) {
                                                        case SurviveSimpleEventType_None:
                                                            break;
                                                    */
+        case SurviveSimpleEventType_None:
+            if(None_printed++ == 0)
+                ROS_WARN("None");
+            break;
         }
 
     }
