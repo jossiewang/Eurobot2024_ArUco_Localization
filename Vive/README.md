@@ -93,3 +93,8 @@ rosparam set /side 1 # green
 roslaunch vive vive_rival_1.launch # or
 roslaunch vive vive_rival_2.launch
 ```
+## config file
+- The LH object will be build in the `config.json`
+```
+~/.config/libsurvive/config.json
+```
