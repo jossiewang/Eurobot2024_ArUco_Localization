@@ -1,1 +1,7 @@
 .vscode/
+build/*
+devel/*
+.YDLidar-SDK/*
+obstacle_detector/*
+*.swp
+test/
