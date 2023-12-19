@@ -65,8 +65,10 @@ ViveDevice::ViveDevice(std::string spf_, const char* sn_) {
     if (strcmp(serial_num, "LHB-D4EEE18") == 0) frame = spf_ + "LH1";
     if (strcmp(serial_num, "LHB-2BEE096A") == 0) frame = spf_ + "LH2";
 }
-void ViveDevice::send_tf_from_world(SurvivePose p_, std::string wf_, const SurviveSimpleObject* it_, std::string tracker_) {
-    if (strcmp(tracker_.c_str(), frame.c_str()) == 0 || survive_simple_object_get_type(it_) == SurviveSimpleObject_LIGHTHOUSE) {
+void ViveDevice::send_tf_from_world(SurvivePose p_, std::string wf_,
+     const SurviveSimpleObject* it_, std::string tracker_) {
+    if (strcmp(tracker_.c_str(), frame.c_str()) == 0 ||
+         survive_simple_object_get_type(it_) == SurviveSimpleObject_LIGHTHOUSE){
         tf::StampedTransform tf_from_world;
         tf_from_world.setOrigin(tf::Vector3(p_.Pos[0], p_.Pos[1], p_.Pos[2]));
         tf_from_world.setRotation(tf::Quaternion(p_.Rot[1], p_.Rot[2], p_.Rot[3], p_.Rot[0]));
