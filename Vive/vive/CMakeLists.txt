@@ -203,6 +203,15 @@ target_link_libraries(vive_trackerpose ${LIBS}  ${catkin_LIBRARIES} )
 add_executable(vive_rival src/vive_rival.cpp)
 target_link_libraries(vive_rival ${LIBS}  ${catkin_LIBRARIES} )
 
+add_executable(rival src/rival.cpp)
+target_link_libraries(rival ${LIBS}  ${catkin_LIBRARIES} )
+
+add_executable(world src/world.cpp)
+target_link_libraries(world ${LIBS}  ${catkin_LIBRARIES} )
+
+add_executable(calibrate src/calibrate.cpp)
+target_link_libraries(calibrate ${LIBS}  ${catkin_LIBRARIES} )
+
 
 #############
 ## Install ##

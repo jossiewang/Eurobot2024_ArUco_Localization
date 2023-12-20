@@ -36,24 +36,27 @@ std::string LH2_serial_number = "LHB-2BEE096A";
 std::string tracker_serial_number;
 std::string tracker_name;
 std::string side;
+std::string package_path;
+std::string log_fn_msg;
+bool log_fn_flag = false;
 bool dump_blue;
-bool dump_green;
+bool dump_yellow;
 
-tf::StampedTransform transform_LH0ToMapGreen;
-tf::StampedTransform transform_LH1ToMapGreen;
-tf::StampedTransform transform_LH2ToMapGreen;
-tf::StampedTransform transform_MapGreenToLH0;
-tf::StampedTransform transform_MapGreenToLH1;
-tf::StampedTransform transform_MapGreenToLH2;
+tf::StampedTransform transform_LH0ToMapYellow;
+tf::StampedTransform transform_LH1ToMapYellow;
+// tf::StampedTransform transform_LH2ToMapYellow;
+tf::StampedTransform transform_MapYellowToLH0;
+tf::StampedTransform transform_MapYellowToLH1;
+// tf::StampedTransform transform_MapYellowToLH2;
 tf::StampedTransform transform_LH0ToMapBlue;
 tf::StampedTransform transform_LH1ToMapBlue;
-tf::StampedTransform transform_LH2ToMapBlue;
+// tf::StampedTransform transform_LH2ToMapBlue;
 tf::StampedTransform transform_MapBlueToLH0;
 tf::StampedTransform transform_MapBlueToLH1;
-tf::StampedTransform transform_MapBlueToLH2;
+// tf::StampedTransform transform_MapBlueToLH2;
 tf::StampedTransform transform_surviveWorldToLH0;
 tf::StampedTransform transform_surviveWorldToLH1;
-tf::StampedTransform transform_surviveWorldToLH2;
+// tf::StampedTransform transform_surviveWorldToLH2;
 tf::StampedTransform transform_surviveWorldToTracker;
 tf::StampedTransform transform_trackerAbsToMap;
 tf::StampedTransform transform_MapToMap;
@@ -63,6 +66,7 @@ void reloadParam(ros::NodeHandle);
 
 static void log_fn(SurviveSimpleContext* actx, SurviveLogLevel logLevel, const char* msg) {
     fprintf(stderr, "(%7.3f) SimpleApi: %s\n", survive_simple_run_time(actx), msg);
+    log_fn_msg = msg;
 }
 
 int main(int argc, char** argv) {
@@ -72,7 +76,23 @@ int main(int argc, char** argv) {
     signal(SIGKILL, intHandler);
 #endif
 
-    ros::init(argc, argv, "vive_calibrate");
+    std::string package_name = "vive";
+    std::string fp_command = "rospack find " + package_name;
+    FILE *fp = popen(fp_command.c_str(), "r");
+    if (!fp) {
+        std::cerr << "Error executing rospack command." << std::endl;
+        return 1;
+    }
+    std::cout<<std::endl<<"rospack command executed."<<std::endl;
+    char fp_path[1024];
+    fgets(fp_path, sizeof(fp_path), fp);
+    fp_path[strlen(fp_path) - 1] = '\0';
+    package_path = fp_path;
+    std::cout<<"package path: "<<package_path<<std::endl<<std::endl;
+    pclose(fp);
+    
+
+    ros::init(argc, argv, "calibrate");
     ros::NodeHandle nh;
     ros::NodeHandle nh_("~");
     tf::TransformBroadcaster br;
@@ -95,14 +115,28 @@ int main(int argc, char** argv) {
 
     struct SurviveSimpleEvent event = {};
     while (keepRunning && survive_simple_wait_for_event(actx, &event) != SurviveSimpleEventType_Shutdown && ros::ok()) {
+        
+        if (strcmp(log_fn_msg.c_str(), "Got OOTX packet 15 0d4eee18") == 0) {
+            log_fn_flag = true;
+            ROS_WARN("Now You can press Ctrl+C to stop");
+        }
+        if(!log_fn_flag) continue;
+
+
         switch (event.event_type) {
         case SurviveSimpleEventType_PoseUpdateEvent: {
+            //if the first update -- print info: updated,and can Ctrl+C to stop.
+            // if (OGGetAbsoluteTime() - start_time < 1) {
+            //     printf("Pose Update Event\n");
+            //     printf("Press Ctrl+C to stop\n");
+            // }
             for (const SurviveSimpleObject* it = survive_simple_get_first_object(actx);
                 it != 0; it = survive_simple_get_next_object(actx, it)) {
                 SurvivePose pose;
                 survive_simple_object_get_latest_pose(it, &pose);
 
-                if (survive_simple_object_get_type(it) == SurviveSimpleObject_OBJECT && strcmp(survive_simple_serial_number(it), tracker_serial_number.c_str()) == 0) {
+                if (survive_simple_object_get_type(it) == SurviveSimpleObject_OBJECT && 
+                     strcmp(survive_simple_serial_number(it), tracker_serial_number.c_str()) == 0) {
                     transform_surviveWorldToTracker.setOrigin(tf::Vector3(pose.Pos[0], pose.Pos[1], pose.Pos[2]));
                     transform_surviveWorldToTracker.setRotation(tf::Quaternion(pose.Rot[1], pose.Rot[2], pose.Rot[3], pose.Rot[0]));
                 }
@@ -115,61 +149,61 @@ int main(int argc, char** argv) {
                         transform_surviveWorldToLH1.setOrigin(tf::Vector3(pose.Pos[0], pose.Pos[1], pose.Pos[2]));
                         transform_surviveWorldToLH1.setRotation(tf::Quaternion(pose.Rot[1], pose.Rot[2], pose.Rot[3], pose.Rot[0]));
                     }
-                    else if (strcmp(survive_simple_serial_number(it), LH2_serial_number.c_str()) == 0) {
-                        transform_surviveWorldToLH2.setOrigin(tf::Vector3(pose.Pos[0], pose.Pos[1], pose.Pos[2]));
-                        transform_surviveWorldToLH2.setRotation(tf::Quaternion(pose.Rot[1], pose.Rot[2], pose.Rot[3], pose.Rot[0]));
-                    }
+                    // else if (strcmp(survive_simple_serial_number(it), LH2_serial_number.c_str()) == 0) {
+                    //     transform_surviveWorldToLH2.setOrigin(tf::Vector3(pose.Pos[0], pose.Pos[1], pose.Pos[2]));
+                    //     transform_surviveWorldToLH2.setRotation(tf::Quaternion(pose.Rot[1], pose.Rot[2], pose.Rot[3], pose.Rot[0]));
+                    // }
                 }
             }
 
             br.sendTransform(tf::StampedTransform(transform_surviveWorldToTracker, ros::Time::now(), "survive_world", "tracker"));
             br.sendTransform(tf::StampedTransform(transform_surviveWorldToLH0, ros::Time::now(), "survive_world", "LH0"));
             br.sendTransform(tf::StampedTransform(transform_surviveWorldToLH1, ros::Time::now(), "survive_world", "LH1"));
-            br.sendTransform(tf::StampedTransform(transform_surviveWorldToLH2, ros::Time::now(), "survive_world", "LH2"));
+            // br.sendTransform(tf::StampedTransform(transform_surviveWorldToLH2, ros::Time::now(), "survive_world", "LH2"));
             if (strcmp(side.c_str(), "b") == 0) {
                 br.sendTransform(tf::StampedTransform(transform_trackerAbsToMap, ros::Time::now(), "tracker", "map_blue"));
-                br.sendTransform(tf::StampedTransform(transform_MapToMap, ros::Time::now(), "map_blue", "map_green"));
+                br.sendTransform(tf::StampedTransform(transform_MapToMap, ros::Time::now(), "map_blue", "map_Yellow"));
             }
-            else if (strcmp(side.c_str(), "g") == 0) {
-                br.sendTransform(tf::StampedTransform(transform_trackerAbsToMap, ros::Time::now(), "tracker", "map_green"));
-                br.sendTransform(tf::StampedTransform(transform_MapToMap, ros::Time::now(), "map_green", "map_blue"));
+            else if (strcmp(side.c_str(), "y") == 0) {
+                br.sendTransform(tf::StampedTransform(transform_trackerAbsToMap, ros::Time::now(), "tracker", "map_Yellow"));
+                br.sendTransform(tf::StampedTransform(transform_MapToMap, ros::Time::now(), "map_Yellow", "map_blue"));
             }
 
             try {
-                listener.lookupTransform("LH0", "map_green", ros::Time(0), transform_LH0ToMapGreen);
-                listener.lookupTransform("LH1", "map_green", ros::Time(0), transform_LH1ToMapGreen);
-                listener.lookupTransform("LH2", "map_green", ros::Time(0), transform_LH2ToMapGreen);
-                listener.lookupTransform("map_green", "LH0", ros::Time(0), transform_MapGreenToLH0);
-                listener.lookupTransform("map_green", "LH1", ros::Time(0), transform_MapGreenToLH1);
-                listener.lookupTransform("map_green", "LH2", ros::Time(0), transform_MapGreenToLH2);
+                listener.lookupTransform("LH0", "map_Yellow", ros::Time(0), transform_LH0ToMapYellow);
+                listener.lookupTransform("LH1", "map_Yellow", ros::Time(0), transform_LH1ToMapYellow);
+                // listener.lookupTransform("LH2", "map_Yellow", ros::Time(0), transform_LH2ToMapYellow);
+                listener.lookupTransform("map_Yellow", "LH0", ros::Time(0), transform_MapYellowToLH0);
+                listener.lookupTransform("map_Yellow", "LH1", ros::Time(0), transform_MapYellowToLH1);
+                // listener.lookupTransform("map_Yellow", "LH2", ros::Time(0), transform_MapYellowToLH2);
                 listener.lookupTransform("LH0", "map_blue", ros::Time(0), transform_LH0ToMapBlue);
                 listener.lookupTransform("LH1", "map_blue", ros::Time(0), transform_LH1ToMapBlue);
-                listener.lookupTransform("LH2", "map_blue", ros::Time(0), transform_LH2ToMapBlue);
+                // listener.lookupTransform("LH2", "map_blue", ros::Time(0), transform_LH2ToMapBlue);
                 listener.lookupTransform("map_blue", "LH0", ros::Time(0), transform_MapBlueToLH0);
                 listener.lookupTransform("map_blue", "LH1", ros::Time(0), transform_MapBlueToLH1);
-                listener.lookupTransform("map_blue", "LH2", ros::Time(0), transform_MapBlueToLH2);
+                // listener.lookupTransform("map_blue", "LH2", ros::Time(0), transform_MapBlueToLH2);
             }
             catch (tf::TransformException& ex) {
                 ROS_ERROR("%s", ex.what());
             }
-            printf("transform: map_green to LH0\n");
-            printf("%f, %f, %f\n", transform_MapGreenToLH0.getOrigin().x(),
-                transform_MapGreenToLH0.getOrigin().y(), transform_MapGreenToLH0.getOrigin().z());
-            printf("transform: map_green to LH1\n");
-            printf("%f, %f, %f\n", transform_MapGreenToLH1.getOrigin().x(),
-                transform_MapGreenToLH1.getOrigin().y(), transform_MapGreenToLH1.getOrigin().z());
-            printf("transform: map_green to LH2\n");
-            printf("%f, %f, %f\n", transform_MapGreenToLH2.getOrigin().x(),
-                transform_MapGreenToLH2.getOrigin().y(), transform_MapGreenToLH2.getOrigin().z());
+            printf("transform: map_Yellow to LH0\n");
+            printf("%f, %f, %f\n", transform_MapYellowToLH0.getOrigin().x(),
+                transform_MapYellowToLH0.getOrigin().y(), transform_MapYellowToLH0.getOrigin().z());
+            printf("transform: map_Yellow to LH1\n");
+            printf("%f, %f, %f\n", transform_MapYellowToLH1.getOrigin().x(),
+                transform_MapYellowToLH1.getOrigin().y(), transform_MapYellowToLH1.getOrigin().z());
+            // printf("transform: map_Yellow to LH2\n");
+            // printf("%f, %f, %f\n", transform_MapYellowToLH2.getOrigin().x(),
+            //     transform_MapYellowToLH2.getOrigin().y(), transform_MapYellowToLH2.getOrigin().z());
             printf("transform: map_blue to LH0\n");
             printf("%f, %f, %f\n", transform_MapBlueToLH0.getOrigin().x(),
                 transform_MapBlueToLH0.getOrigin().y(), transform_MapBlueToLH0.getOrigin().z());
             printf("transform: map_blue to LH1\n");
             printf("%f, %f, %f\n", transform_MapBlueToLH1.getOrigin().x(),
                 transform_MapBlueToLH1.getOrigin().y(), transform_MapBlueToLH1.getOrigin().z());
-            printf("transform: map_blue to LH2\n");
-            printf("%f, %f, %f\n", transform_MapBlueToLH2.getOrigin().x(),
-                transform_MapBlueToLH2.getOrigin().y(), transform_MapBlueToLH2.getOrigin().z());
+            // printf("transform: map_blue to LH2\n");
+            // printf("%f, %f, %f\n", transform_MapBlueToLH2.getOrigin().x(),
+            //     transform_MapBlueToLH2.getOrigin().y(), transform_MapBlueToLH2.getOrigin().z());
             break;
         }
         }
@@ -194,8 +228,8 @@ void initialize(ros::NodeHandle nh_) {
     nh_.getParam("tracker_abs_Z", tracker_abs.Z);
     nh_.getParam("calibrate_tracker", tracker_name);
     nh_.getParam("dump_blue", dump_blue);
-    nh_.getParam("dump_green", dump_green);
-    nh_.getParam("side", side); //0 blue; 1 green.
+    nh_.getParam("dump_yellow", dump_yellow);
+    nh_.getParam("side", side); //b blue; y yellow.
 
     if (strcmp("tracker_A", tracker_name.c_str()) == 0) tracker_serial_number = "LHR-94135635";
     if (strcmp("tracker_B", tracker_name.c_str()) == 0) tracker_serial_number = "LHR-15565625";
@@ -213,30 +247,30 @@ void reloadParam(ros::NodeHandle nh_)
 {
     auto node_name = ros::this_node::getName();
     nh_.getParam("dump_blue", dump_blue);
-    nh_.getParam("dump_green", dump_green);
+    nh_.getParam("dump_yellow", dump_yellow);
 
-    if (dump_green) {
-        nh_.setParam("Green/LH0_W", transform_LH0ToMapGreen.getRotation().getW());
-        nh_.setParam("Green/LH0_X", transform_LH0ToMapGreen.getRotation().getX());
-        nh_.setParam("Green/LH0_Y", transform_LH0ToMapGreen.getRotation().getY());
-        nh_.setParam("Green/LH0_Z", transform_LH0ToMapGreen.getRotation().getZ());
-        nh_.setParam("Green/LH0_x", transform_LH0ToMapGreen.getOrigin().x());
-        nh_.setParam("Green/LH0_y", transform_LH0ToMapGreen.getOrigin().y());
-        nh_.setParam("Green/LH0_z", transform_LH0ToMapGreen.getOrigin().z());
-        nh_.setParam("Green/LH1_W", transform_LH1ToMapGreen.getRotation().getW());
-        nh_.setParam("Green/LH1_X", transform_LH1ToMapGreen.getRotation().getX());
-        nh_.setParam("Green/LH1_Y", transform_LH1ToMapGreen.getRotation().getY());
-        nh_.setParam("Green/LH1_Z", transform_LH1ToMapGreen.getRotation().getZ());
-        nh_.setParam("Green/LH1_x", transform_LH1ToMapGreen.getOrigin().x());
-        nh_.setParam("Green/LH1_y", transform_LH1ToMapGreen.getOrigin().y());
-        nh_.setParam("Green/LH1_z", transform_LH1ToMapGreen.getOrigin().z());
-        nh_.setParam("Green/LH2_W", transform_LH2ToMapGreen.getRotation().getW());
-        nh_.setParam("Green/LH2_X", transform_LH2ToMapGreen.getRotation().getX());
-        nh_.setParam("Green/LH2_Y", transform_LH2ToMapGreen.getRotation().getY());
-        nh_.setParam("Green/LH2_Z", transform_LH2ToMapGreen.getRotation().getZ());
-        nh_.setParam("Green/LH2_x", transform_LH2ToMapGreen.getOrigin().x());
-        nh_.setParam("Green/LH2_y", transform_LH2ToMapGreen.getOrigin().y());
-        nh_.setParam("Green/LH2_z", transform_LH2ToMapGreen.getOrigin().z());
+    if (dump_yellow) {
+        nh_.setParam("Yellow/LH0_W", transform_LH0ToMapYellow.getRotation().getW());
+        nh_.setParam("Yellow/LH0_X", transform_LH0ToMapYellow.getRotation().getX());
+        nh_.setParam("Yellow/LH0_Y", transform_LH0ToMapYellow.getRotation().getY());
+        nh_.setParam("Yellow/LH0_Z", transform_LH0ToMapYellow.getRotation().getZ());
+        nh_.setParam("Yellow/LH0_x", transform_LH0ToMapYellow.getOrigin().x());
+        nh_.setParam("Yellow/LH0_y", transform_LH0ToMapYellow.getOrigin().y());
+        nh_.setParam("Yellow/LH0_z", transform_LH0ToMapYellow.getOrigin().z());
+        nh_.setParam("Yellow/LH1_W", transform_LH1ToMapYellow.getRotation().getW());
+        nh_.setParam("Yellow/LH1_X", transform_LH1ToMapYellow.getRotation().getX());
+        nh_.setParam("Yellow/LH1_Y", transform_LH1ToMapYellow.getRotation().getY());
+        nh_.setParam("Yellow/LH1_Z", transform_LH1ToMapYellow.getRotation().getZ());
+        nh_.setParam("Yellow/LH1_x", transform_LH1ToMapYellow.getOrigin().x());
+        nh_.setParam("Yellow/LH1_y", transform_LH1ToMapYellow.getOrigin().y());
+        nh_.setParam("Yellow/LH1_z", transform_LH1ToMapYellow.getOrigin().z());
+        // nh_.setParam("Yellow/LH2_W", transform_LH2ToMapYellow.getRotation().getW());
+        // nh_.setParam("Yellow/LH2_X", transform_LH2ToMapYellow.getRotation().getX());
+        // nh_.setParam("Yellow/LH2_Y", transform_LH2ToMapYellow.getRotation().getY());
+        // nh_.setParam("Yellow/LH2_Z", transform_LH2ToMapYellow.getRotation().getZ());
+        // nh_.setParam("Yellow/LH2_x", transform_LH2ToMapYellow.getOrigin().x());
+        // nh_.setParam("Yellow/LH2_y", transform_LH2ToMapYellow.getOrigin().y());
+        // nh_.setParam("Yellow/LH2_z", transform_LH2ToMapYellow.getOrigin().z());
     }
 
     if (dump_blue) {
@@ -254,13 +288,13 @@ void reloadParam(ros::NodeHandle nh_)
         nh_.setParam("Blue/LH1_x", transform_LH1ToMapBlue.getOrigin().x());
         nh_.setParam("Blue/LH1_y", transform_LH1ToMapBlue.getOrigin().y());
         nh_.setParam("Blue/LH1_z", transform_LH1ToMapBlue.getOrigin().z());
-        nh_.setParam("Blue/LH2_W", transform_LH2ToMapBlue.getRotation().getW());
-        nh_.setParam("Blue/LH2_X", transform_LH2ToMapBlue.getRotation().getX());
-        nh_.setParam("Blue/LH2_Y", transform_LH2ToMapBlue.getRotation().getY());
-        nh_.setParam("Blue/LH2_Z", transform_LH2ToMapBlue.getRotation().getZ());
-        nh_.setParam("Blue/LH2_x", transform_LH2ToMapBlue.getOrigin().x());
-        nh_.setParam("Blue/LH2_y", transform_LH2ToMapBlue.getOrigin().y());
-        nh_.setParam("Blue/LH2_z", transform_LH2ToMapBlue.getOrigin().z());
+        // nh_.setParam("Blue/LH2_W", transform_LH2ToMapBlue.getRotation().getW());
+        // nh_.setParam("Blue/LH2_X", transform_LH2ToMapBlue.getRotation().getX());
+        // nh_.setParam("Blue/LH2_Y", transform_LH2ToMapBlue.getRotation().getY());
+        // nh_.setParam("Blue/LH2_Z", transform_LH2ToMapBlue.getRotation().getZ());
+        // nh_.setParam("Blue/LH2_x", transform_LH2ToMapBlue.getOrigin().x());
+        // nh_.setParam("Blue/LH2_y", transform_LH2ToMapBlue.getOrigin().y());
+        // nh_.setParam("Blue/LH2_z", transform_LH2ToMapBlue.getOrigin().z());
     }
 
     nh_.deleteParam("tracker_abs_x");
@@ -272,11 +306,13 @@ void reloadParam(ros::NodeHandle nh_)
     nh_.deleteParam("tracker_abs_Z");
     nh_.deleteParam("calibrate_tracker");
     nh_.deleteParam("side");
-    nh_.deleteParam("dump_green");
+    nh_.deleteParam("dump_yellow");
     nh_.deleteParam("dump_blue");
 
-    auto path = "rosparam dump ~/localization2023/src/vive/vive/param/vive_calibrate.yaml vive_calibrate";
-    system(path);
+
+    std::string yaml_path = package_path + "/param/vive_calibrate.yaml";
+    std::string dump_command = "rosparam dump " + yaml_path + " calibrate";
+    system(dump_command.c_str());
     printf("dumped param to vive_claibrate.yaml\n");
 
     std::string deleteparam = "rosparam delete " + node_name;

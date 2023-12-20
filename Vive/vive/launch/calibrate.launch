@@ -1,11 +1,12 @@
 <launch>
     
-    <node name="vive_calibrate" pkg="vive" type="vive_calibrate" output="screen">
+    <node name="calibrate" pkg="vive" type="calibrate" output="screen">
         <rosparam file="$(find vive)/param/vive_calibrate.yaml" command="load" />
-        <param name="calibrate_tracker" value="tracker_C"/>
-        <param name="side" value="g"/>  <!-- now is green -->
+        <param name="calibrate_tracker" value="tracker_D"/>
+        <param name="side" value="b"/>  <!-- now is blue -->
+        <!-- <param name="side" value="y"/>  now is yellow -->
         <param name="dump_blue" value="true"/>
-        <param name="dump_green" value="true"/>
+        <param name="dump_yellow" value="true"/>
         <param name="tracker_abs_W" value="0.0"/>
         <param name="tracker_abs_X" value="0.7071068"/>
         <param name="tracker_abs_Y" value="-0.7071068"/>
