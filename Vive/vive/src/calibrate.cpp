@@ -38,7 +38,8 @@ std::string tracker_name;
 std::string side;
 std::string package_path;
 std::string log_fn_msg;
-bool log_fn_flag = false;
+int num_LH = 1;
+int num_ootx_done = 0;
 bool dump_blue;
 bool dump_yellow;
 
@@ -116,11 +117,11 @@ int main(int argc, char** argv) {
     struct SurviveSimpleEvent event = {};
     while (keepRunning && survive_simple_wait_for_event(actx, &event) != SurviveSimpleEventType_Shutdown && ros::ok()) {
         
-        if (strcmp(log_fn_msg.c_str(), "Got OOTX packet 15 0d4eee18") == 0) {
-            log_fn_flag = true;
-            ROS_WARN("Now You can press Ctrl+C to stop");
+        if (strncmp(log_fn_msg.c_str(), "Got OOTX packet", 15) == 0) {
+            num_ootx_done ++;
         }
-        if(!log_fn_flag) continue;
+        if(num_ootx_done != num_LH) continue;
+        else ROS_WARN("Now You can press Ctrl+C to stop");
 
 
         switch (event.event_type) {
@@ -219,6 +220,7 @@ int main(int argc, char** argv) {
 void initialize(ros::NodeHandle nh_) {
 
     auto node_name = ros::this_node::getName();
+    nh_.getParam("num_LH", num_LH);
     nh_.getParam("tracker_abs_x", tracker_abs.x);
     nh_.getParam("tracker_abs_y", tracker_abs.y);
     nh_.getParam("tracker_abs_z", tracker_abs.z);
