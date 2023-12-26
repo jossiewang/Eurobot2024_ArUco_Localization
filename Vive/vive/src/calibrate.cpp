@@ -120,15 +120,14 @@ int main(int argc, char** argv) {
         if (strncmp(log_fn_msg.c_str(), "Got OOTX packet", 15) == 0) {
             num_ootx_done ++;
             log_fn_msg = "";
+            if(num_ootx_done == num_LH)    printf("OOTX done.\n");
         }
-        if(num_ootx_done != num_LH) continue;
-        else{
-            printf("~ ~ ~ ~ ~\t\t\tNow You can press Ctrl+C to dump the yaml\t\t\t~ ~ ~ ~ ~\n");
-        }
+        if(num_ootx_done < num_LH) continue;
 
 
         switch (event.event_type) {
         case SurviveSimpleEventType_PoseUpdateEvent: {
+            printf("~ ~ ~ ~ ~\t\t\tNow You can press Ctrl+C to dump the yaml\t\t\t~ ~ ~ ~ ~\n");
             for (const SurviveSimpleObject* it = survive_simple_get_first_object(actx);
                 it != 0; it = survive_simple_get_next_object(actx, it)) {
                 SurvivePose pose;
@@ -146,8 +145,8 @@ int main(int argc, char** argv) {
                         transform_surviveWorldToLH1.setRotation(
                              tf::Quaternion(pose.Rot[1], pose.Rot[2], pose.Rot[3], pose.Rot[0]));
                     }
-                    else if (strcmp(survive_simple_serial_number(it), LH2_serial_number.c_str()) == 0) {
-                        if(num_LH < 2)    continue;
+                    else if (num_LH == 2 &&
+                     strcmp(survive_simple_serial_number(it), LH2_serial_number.c_str()) == 0) {
                         transform_surviveWorldToLH2.setOrigin(tf::Vector3(pose.Pos[0], pose.Pos[1], pose.Pos[2]));
                         transform_surviveWorldToLH2.setRotation(
                              tf::Quaternion(pose.Rot[1], pose.Rot[2], pose.Rot[3], pose.Rot[0]));
@@ -258,15 +257,13 @@ void reloadParam(ros::NodeHandle nh_)
         nh_.setParam("Yellow/LH1_x", transform_LH1ToMapYellow.getOrigin().x());
         nh_.setParam("Yellow/LH1_y", transform_LH1ToMapYellow.getOrigin().y());
         nh_.setParam("Yellow/LH1_z", transform_LH1ToMapYellow.getOrigin().z());
-        if(num_LH){
-            nh_.setParam("Yellow/LH2_W", transform_LH2ToMapYellow.getRotation().getW());
-            nh_.setParam("Yellow/LH2_X", transform_LH2ToMapYellow.getRotation().getX());
-            nh_.setParam("Yellow/LH2_Y", transform_LH2ToMapYellow.getRotation().getY());
-            nh_.setParam("Yellow/LH2_Z", transform_LH2ToMapYellow.getRotation().getZ());
-            nh_.setParam("Yellow/LH2_x", transform_LH2ToMapYellow.getOrigin().x());
-            nh_.setParam("Yellow/LH2_y", transform_LH2ToMapYellow.getOrigin().y());
-            nh_.setParam("Yellow/LH2_z", transform_LH2ToMapYellow.getOrigin().z());
-        }
+        nh_.setParam("Yellow/LH2_W", transform_LH2ToMapYellow.getRotation().getW());
+        nh_.setParam("Yellow/LH2_X", transform_LH2ToMapYellow.getRotation().getX());
+        nh_.setParam("Yellow/LH2_Y", transform_LH2ToMapYellow.getRotation().getY());
+        nh_.setParam("Yellow/LH2_Z", transform_LH2ToMapYellow.getRotation().getZ());
+        nh_.setParam("Yellow/LH2_x", transform_LH2ToMapYellow.getOrigin().x());
+        nh_.setParam("Yellow/LH2_y", transform_LH2ToMapYellow.getOrigin().y());
+        nh_.setParam("Yellow/LH2_z", transform_LH2ToMapYellow.getOrigin().z());
     }
 
     if (dump_blue) {
@@ -277,17 +274,33 @@ void reloadParam(ros::NodeHandle nh_)
         nh_.setParam("Blue/LH1_x", transform_LH1ToMapBlue.getOrigin().x());
         nh_.setParam("Blue/LH1_y", transform_LH1ToMapBlue.getOrigin().y());
         nh_.setParam("Blue/LH1_z", transform_LH1ToMapBlue.getOrigin().z());
-        if(num_LH){
-            nh_.setParam("Blue/LH2_W", transform_LH2ToMapBlue.getRotation().getW());
-            nh_.setParam("Blue/LH2_X", transform_LH2ToMapBlue.getRotation().getX());
-            nh_.setParam("Blue/LH2_Y", transform_LH2ToMapBlue.getRotation().getY());
-            nh_.setParam("Blue/LH2_Z", transform_LH2ToMapBlue.getRotation().getZ());
-            nh_.setParam("Blue/LH2_x", transform_LH2ToMapBlue.getOrigin().x());
-            nh_.setParam("Blue/LH2_y", transform_LH2ToMapBlue.getOrigin().y());
-            nh_.setParam("Blue/LH2_z", transform_LH2ToMapBlue.getOrigin().z());
-        }
+        nh_.setParam("Blue/LH2_W", transform_LH2ToMapBlue.getRotation().getW());
+        nh_.setParam("Blue/LH2_X", transform_LH2ToMapBlue.getRotation().getX());
+        nh_.setParam("Blue/LH2_Y", transform_LH2ToMapBlue.getRotation().getY());
+        nh_.setParam("Blue/LH2_Z", transform_LH2ToMapBlue.getRotation().getZ());
+        nh_.setParam("Blue/LH2_x", transform_LH2ToMapBlue.getOrigin().x());
+        nh_.setParam("Blue/LH2_y", transform_LH2ToMapBlue.getOrigin().y());
+        nh_.setParam("Blue/LH2_z", transform_LH2ToMapBlue.getOrigin().z());
     }
 
+    if(num_LH < 2){
+        nh_.deleteParam("Yellow/LH2_W");
+        nh_.deleteParam("Yellow/LH2_X");
+        nh_.deleteParam("Yellow/LH2_Y");
+        nh_.deleteParam("Yellow/LH2_Z");
+        nh_.deleteParam("Yellow/LH2_x");
+        nh_.deleteParam("Yellow/LH2_y");
+        nh_.deleteParam("Yellow/LH2_z");
+        nh_.deleteParam("Blue/LH2_W");
+        nh_.deleteParam("Blue/LH2_X");
+        nh_.deleteParam("Blue/LH2_Y");
+        nh_.deleteParam("Blue/LH2_Z");
+        nh_.deleteParam("Blue/LH2_x");
+        nh_.deleteParam("Blue/LH2_y");
+        nh_.deleteParam("Blue/LH2_z");
+    }
+
+    nh_.deleteParam("num_LH");
     nh_.deleteParam("tracker_abs_x");
     nh_.deleteParam("tracker_abs_y");
     nh_.deleteParam("tracker_abs_z");
