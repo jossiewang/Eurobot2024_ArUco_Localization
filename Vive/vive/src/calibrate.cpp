@@ -300,7 +300,7 @@ void reloadParam(ros::NodeHandle nh_)
         nh_.deleteParam("Blue/LH2_z");
     }
 
-    nh_.deleteParam("num_LH");
+    // nh_.deleteParam("num_LH");
     nh_.deleteParam("tracker_abs_x");
     nh_.deleteParam("tracker_abs_y");
     nh_.deleteParam("tracker_abs_z");

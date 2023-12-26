@@ -1,7 +1,7 @@
 <launch>
     <arg name="survive_active" default="true" />
     <arg name="survive_tracker" default="trackerD" />
-    <arg name="side_" default="g" />
+    <arg name="side_" default="y" />
     <arg name="map_tole" default="0.2" />
     <arg name="print_world_active" default="true" />
     <arg name="freq_" default="40" />

@@ -121,15 +121,16 @@ ViveMap::ViveMap(std::string spf_, int od_) {
 }
 void ViveMap::set_tf_from_lh(ros::NodeHandle nh_, int side_) {
     bool ok = true;
-    // if (strcmp(side_.c_str(), "g") == 0) {
-    if (side_ == 1) { // side green
-        ok &= nh_.getParam("Green/LH" + std::to_string(order) + "_x", p_from_lh.x);
-        ok &= nh_.getParam("Green/LH" + std::to_string(order) + "_y", p_from_lh.y);
-        ok &= nh_.getParam("Green/LH" + std::to_string(order) + "_z", p_from_lh.z);
-        ok &= nh_.getParam("Green/LH" + std::to_string(order) + "_W", p_from_lh.W);
-        ok &= nh_.getParam("Green/LH" + std::to_string(order) + "_X", p_from_lh.X);
-        ok &= nh_.getParam("Green/LH" + std::to_string(order) + "_Y", p_from_lh.Y);
-        ok &= nh_.getParam("Green/LH" + std::to_string(order) + "_Z", p_from_lh.Z);
+    // if (strcmp(side_.c_str(), "y") == 0) {
+    if (side_ == 1) { // side yellow
+        
+        ok &= nh_.getParam("Yellow/LH" + std::to_string(order) + "_x", p_from_lh.x);
+        ok &= nh_.getParam("Yellow/LH" + std::to_string(order) + "_y", p_from_lh.y);
+        ok &= nh_.getParam("Yellow/LH" + std::to_string(order) + "_z", p_from_lh.z);
+        ok &= nh_.getParam("Yellow/LH" + std::to_string(order) + "_W", p_from_lh.W);
+        ok &= nh_.getParam("Yellow/LH" + std::to_string(order) + "_X", p_from_lh.X);
+        ok &= nh_.getParam("Yellow/LH" + std::to_string(order) + "_Y", p_from_lh.Y);
+        ok &= nh_.getParam("Yellow/LH" + std::to_string(order) + "_Z", p_from_lh.Z);
     }
     // if (strcmp(side_.c_str(), "b") == 0) {
     if (side_ == 0) { // side blue
@@ -148,8 +149,14 @@ void ViveMap::set_tf_from_lh(ros::NodeHandle nh_, int side_) {
     else {
         std::cout << "set tf: lh" << order << " to map" << order << " failed." << std::endl;
     }
-    tf_from_lh.setOrigin(tf::Vector3(p_from_lh.x, p_from_lh.y, p_from_lh.z));
-    tf_from_lh.setRotation(tf::Quaternion(p_from_lh.X, p_from_lh.Y, p_from_lh.Z, p_from_lh.W));
+    try{
+        tf_from_lh.setOrigin(tf::Vector3(p_from_lh.x, p_from_lh.y, p_from_lh.z));
+        tf_from_lh.setRotation(tf::Quaternion(p_from_lh.X, p_from_lh.Y, p_from_lh.Z, p_from_lh.W));
+    }
+    catch (tf::TransformException& ex) {
+        ROS_WARN_THROTTLE(1, "cannot set tf from lh%d to map%d.", order, order);
+        ROS_WARN_THROTTLE(1, "%s", ex.what());
+    }
 }
 void ViveMap::send_tf_from_lh() { br.sendTransform(tf::StampedTransform(tf_from_lh, ros::Time::now(), lh_frame, frame)); }
 void ViveMap::lookup_tf_to_world(std::string wf_, tf::TransformListener& listener) {
@@ -208,6 +215,7 @@ std::string name_space;
 std::string vel_topic_name;
 std::string tracker;
 std::string run_service_name;
+int num_LH = 1;
 int freq;
 int unit;
 double max_distance_bt_maps;
@@ -221,6 +229,7 @@ void initialize(ros::NodeHandle nh_) {
     node_name = ros::this_node::getName();
     name_space = ros::this_node::getNamespace();
 
+    ok &= nh_.getParam("num_LH", num_LH);
     ok &= nh_.getParam("freq", freq);
     ok &= nh_.getParam("unit", unit);
     ok &= nh_.getParam("tracker", tracker);
@@ -308,7 +317,8 @@ tf::StampedTransform get_calibrate_tf(ros::NodeHandle nh_) {
     tf_rot_calibrate.setOrigin(tf::Vector3(tf_x, tf_y, 0));
     tf_rot_calibrate.setRotation(tf::Quaternion(0, 0, sinhalf_, coshalf_));
 
-    std::cout << "(cos sin coshalf sinhalf tf_x tf_y)" << cos_avg << " " << sin_avg << " " << coshalf_ << " " << sinhalf_ << " " << tf_x << " " << tf_y << std::endl;
+    std::cout << "(cos sin coshalf sinhalf tf_x tf_y)" << cos_avg << " " << sin_avg 
+     << " " << coshalf_ << " " << sinhalf_ << " " << tf_x << " " << tf_y << std::endl;
 
     return tf_rot_calibrate;
 }
@@ -322,49 +332,49 @@ double find_distance(ViveMap map1, ViveMap map2) {
     distance = sqrt(x * x + y * y + z * z);
     return distance;
 }
-ViveMap find_avg_map(ViveMap map0, ViveMap map1, ViveMap map2, bool* send_) {
+ViveMap find_avg_map(ViveMap map0, ViveMap map1, bool* send_) {
     ViveMap avg_map(survive_prefix + "map_avg");
     tf::Quaternion avg_q;
     tf::StampedTransform avg_tf;
     VIVEPOSE avg_p;
     bool ok0 = true;
     bool ok1 = true;
-    bool ok2 = true;
-    int divisor = 3;
+    // bool ok2 = true;
+    int divisor = num_LH;
 
     double d01 = find_distance(map0, map1);
-    double d12 = find_distance(map1, map2);
-    double d20 = find_distance(map2, map0);
-    if ((d01 > max_distance_bt_maps && d20 > max_distance_bt_maps) || !map0.has_tf_to_world()) { ok0 = false; divisor--; }
-    if ((d12 > max_distance_bt_maps && d01 > max_distance_bt_maps) || !map1.has_tf_to_world()) { ok1 = false; divisor--; }
-    if ((d20 > max_distance_bt_maps && d12 > max_distance_bt_maps) || !map2.has_tf_to_world()) { ok2 = false; divisor--; }
+    // double d12 = find_distance(map1, map2);
+    // double d20 = find_distance(map2, map0);
+    //要在看看數值有問題怎半
+    // if ((d01 > max_distance_bt_maps && d20 > max_distance_bt_maps) || !map0.has_tf_to_world()) { ok0 = false; divisor--; }
+    // if ((d12 > max_distance_bt_maps && d01 > max_distance_bt_maps) || !map1.has_tf_to_world()) { ok1 = false; divisor--; }
+    // if ((d20 > max_distance_bt_maps && d12 > max_distance_bt_maps) || !map2.has_tf_to_world()) { ok2 = false; divisor--; }
     if (print) {
-        ROS_INFO_THROTTLE(1, "%s/(ok0 ok1 ok2 d01 d12 d20): %d %d %d %f %f %f",
-            world_frame.c_str(), ok0, ok1, ok2, d01, d12, d20);
+        ROS_INFO_THROTTLE(1, "%s/(ok0 ok1 d01): %d %d %f",
+            world_frame.c_str(), ok0, ok1, d01);
     }
 
     if (divisor == 0) {
         ROS_WARN_THROTTLE(1, "%s: did not send tf (map->world).", world_frame.c_str());
-        ROS_WARN_THROTTLE(1, "%s/(d01 d12 d20): %f %f %f", world_frame.c_str(), d01, d12, d20);
+        // ROS_WARN_THROTTLE(1, "%s/(d01 d12 d20): %f %f %f", world_frame.c_str(), d01, d12, d20);
         divisor = 1;
         *send_ = false;
     }
     avg_p.x = (double)
         map0.get_p_to_world(ok0).x / divisor +
-        map1.get_p_to_world(ok1).x / divisor +
-        map2.get_p_to_world(ok2).x / divisor;
+        map1.get_p_to_world(ok1).x / divisor;
+        // map2.get_p_to_world(ok2).x / divisor;
     avg_p.y = (double)
         map0.get_p_to_world(ok0).y / divisor +
-        map1.get_p_to_world(ok1).y / divisor +
-        map2.get_p_to_world(ok2).y / divisor;
+        map1.get_p_to_world(ok1).y / divisor;
+        // map2.get_p_to_world(ok2).y / divisor;
     avg_p.z = (double)
         map0.get_p_to_world(ok0).z / divisor +
-        map1.get_p_to_world(ok1).z / divisor +
-        map2.get_p_to_world(ok2).z / divisor;
+        map1.get_p_to_world(ok1).z / divisor;
+        // map2.get_p_to_world(ok2).z / divisor;
     avg_q =
-        map0.get_q_to_world_devide_by(divisor, ok0).operator+(
-            map1.get_q_to_world_devide_by(divisor, ok1)).operator+(
-                map2.get_q_to_world_devide_by(divisor, ok2));
+        map0.get_q_to_world_devide_by(divisor, ok0).operator +(
+            map1.get_q_to_world_devide_by(divisor, ok1));
     avg_p.W = avg_q.getW();
     avg_p.X = avg_q.getX();
     avg_p.Y = avg_q.getY();
@@ -415,11 +425,11 @@ int main(int argc, char** argv) {
 
     ViveMap map0(survive_prefix, 0);
     ViveMap map1(survive_prefix, 1);
-    ViveMap map2(survive_prefix, 2);
+    // ViveMap map2(survive_prefix, 2);
 
     map0.set_tf_from_lh(nh_, side);
     map1.set_tf_from_lh(nh_, side);
-    map2.set_tf_from_lh(nh_, side);
+    // map2.set_tf_from_lh(nh_, side);
 
     struct SurviveSimpleEvent event = {};
     while (keepRunning && survive_simple_wait_for_event(actx, &event) != SurviveSimpleEventType_Shutdown && ros::ok()) {
@@ -470,13 +480,13 @@ int main(int argc, char** argv) {
         if (evt_type == SurviveSimpleEventType_PoseUpdateEvent) {
             map0.send_tf_from_lh();
             map1.send_tf_from_lh();
-            map2.send_tf_from_lh();
+            // map2.send_tf_from_lh();
             map0.lookup_tf_to_world(world_frame, listener);
             map1.lookup_tf_to_world(world_frame, listener);
-            map2.lookup_tf_to_world(world_frame, listener);
+            // map2.lookup_tf_to_world(world_frame, listener);
 
             bool send = true;
-            ViveMap map_avg = find_avg_map(map0, map1, map2, &send);
+            ViveMap map_avg = find_avg_map(map0, map1, &send);
             if (send) {
                 map_avg.send_tf_to_world(world_frame);
                 br.sendTransform(tf::StampedTransform(tf_rot, ros::Time::now(),
