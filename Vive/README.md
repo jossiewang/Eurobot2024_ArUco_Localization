@@ -30,9 +30,9 @@ catkin_make -DCATKIN_WHITELIST_PACKAGES="vive"
 
 ## Calibration
 ### Getting LH->map
-- Set up three lighthouses.
+- Set up one or two lighthouses.
 - Check dump path in `vive_calibrate.cpp`, line 278. Remember `catkin_make` if the code is modified.
-- Open `vive_calibrate.launch`. Check and modify value of params: `calibrate_tracker` `side`.
+- Open `vive_calibrate.launch`. Check and modify value of params: `calibrate_tracker` `num_LH``side`.
 - Put the tracker on the playground. 
   - Position: (1.5, 1.0) (the center of the playground), and 
   - Orientation: LED facing right shorter side of the playground(the line x=3). 
@@ -48,6 +48,9 @@ roslaunch vive vive_calibrate.launch
   rosparam set /vive_calibrate/dump_green false
   ```
 - Press `ctrl`+`C` to stop the program. `vive/param/vive_calibrate.yaml` will be replaced by new calibration.
+- NOTE: there are two cases:
+  - 1.Only a LH, then you need only calibrate one side(blue or yellow).
+  - 2.Use two LHs, then you need to calibrate blue one time and yellow another time. Remember modify the `side` before change the side you want calibrate.
 ### Calibration of map_origin rotation
 - Set up three lighthouses.
 - Check dump path in `vive_calibrate2.cpp`, line 380. Remember `catkin_make` if the code is modified.
