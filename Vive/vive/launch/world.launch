@@ -1,12 +1,12 @@
 <launch>
     <arg name="survive_active" default="true" />
     <arg name="survive_tracker" default="trackerD" />
-    <arg name="side_" default="y" />
+    <arg name="side" default="y" />
     <arg name="map_tole" default="0.2" />
-    <arg name="print_world_active" default="true" />
+    <arg name="print_world_active" default="false" />
     <arg name="freq_" default="40" />
     <arg name="unit_" default="100" />
-    <param name="side" value="b"/>
+    <!-- <param name="side" value="b"/> global -->
 
     <group if="$(arg survive_active)">
         <node name="vive_world" pkg="vive" type="world" output="screen">
@@ -19,7 +19,7 @@
             <param name="print" type="bool" value="$(arg print_world_active)" />
             <param name="freq" type="int" value="$(arg freq_)" />
             <param name="unit" type="int" value="$(arg unit_)" />
-            <param name="side" type="string" value="$(arg side_)" />
+            <param name="side" type="string" value="$(arg side)" /> <!-- local -->
         </node>
     </group>
 

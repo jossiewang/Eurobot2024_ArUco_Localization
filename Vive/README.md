@@ -75,8 +75,8 @@ rosrun vive vive_calibrate_contrl
   - `print_world` : Print information of `vive_world` or not. Note: SimpleApi logger in `vive_world` would always print information.
 - Launch.
 ```bash=1
-rosparam set /side 0 # blue, or
-rosparam set /side 1 # green
+rosparam set /side b # blue, or
+rosparam set /side y # yellow
 roslaunch vive vive_trackerpose.launch
 ```
 
@@ -88,8 +88,8 @@ roslaunch vive vive_trackerpose.launch
   - `lowpass_active_` : to determined the lowpass filter active. 
 - Launch.
 ```bash=1
-rosparam set /side 0 # blue, or
-rosparam set /side 1 # green
+rosparam set /side b # blue, or
+rosparam set /side y # yellow
 roslaunch vive vive_rival_1.launch # or
 roslaunch vive vive_rival_2.launch
 ```

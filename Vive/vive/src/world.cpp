@@ -53,6 +53,7 @@ private:
     std::string frame;
     const char* serial_num;
     tf::TransformBroadcaster br;
+    geometry_msgs::Twist tracker_vel;
 };
 ViveDevice::ViveDevice(std::string spf_, const char* sn_) {
     serial_num = sn_;
@@ -61,9 +62,8 @@ ViveDevice::ViveDevice(std::string spf_, const char* sn_) {
     if (strcmp(serial_num, "LHR-662B1E75") == 0) frame = "trackerC";
     if (strcmp(serial_num, "LHR-38203A4C") == 0) frame = "trackerD";
     if (strcmp(serial_num, "LHR-E833C29B") == 0) frame = "trackerE";
-    if (strcmp(serial_num, "LHB-400B1A3E") == 0) frame = spf_ + "LH0";
-    if (strcmp(serial_num, "LHB-D4EEE18") == 0) frame = spf_ + "LH1";
-    if (strcmp(serial_num, "LHB-2BEE096A") == 0) frame = spf_ + "LH2";
+    if (strcmp(serial_num, "LHB-D4EEE18") == 0) frame = spf_ + "LH0";
+    if (strcmp(serial_num, "LHB-2BEE096A") == 0) frame = spf_ + "LH1";
 }
 void ViveDevice::send_tf_from_world(SurvivePose p_, std::string wf_,
      const SurviveSimpleObject* it_, std::string tracker_) {
@@ -77,7 +77,6 @@ void ViveDevice::send_tf_from_world(SurvivePose p_, std::string wf_,
 }
 void ViveDevice::pub_tracker_vel(ros::Publisher pub_, SurviveVelocity vel_, std::string tracker_) {
     if (strcmp(tracker_.c_str(), frame.c_str()) == 0) {
-        geometry_msgs::Twist tracker_vel;
         tracker_vel.linear.x = vel_.Pos[0];
         tracker_vel.linear.y = vel_.Pos[1];
         tracker_vel.linear.z = vel_.Pos[2];
@@ -122,8 +121,7 @@ ViveMap::ViveMap(std::string spf_, int od_) {
 void ViveMap::set_tf_from_lh(ros::NodeHandle nh_, int side_) {
     bool ok = true;
     // if (strcmp(side_.c_str(), "y") == 0) {
-    if (side_ == 1) { // side yellow
-        
+    if (side_ == 1) { // side yellow  
         ok &= nh_.getParam("Yellow/LH" + std::to_string(order) + "_x", p_from_lh.x);
         ok &= nh_.getParam("Yellow/LH" + std::to_string(order) + "_y", p_from_lh.y);
         ok &= nh_.getParam("Yellow/LH" + std::to_string(order) + "_z", p_from_lh.z);
@@ -215,11 +213,14 @@ std::string name_space;
 std::string vel_topic_name;
 std::string tracker;
 std::string run_service_name;
+// std::string log_fn_msg;
 int num_LH = 1;
+// int num_ootx_done = 0;
 int freq;
 int unit;
 double max_distance_bt_maps;
 bool print = true;
+std::string side_ = "b";
 int side;
 tf::StampedTransform tf_rot;
 
@@ -238,12 +239,16 @@ void initialize(ros::NodeHandle nh_) {
     ok &= nh_.getParam("run_service_name", run_service_name);
     ok &= nh_.getParam("max_distance_bt_maps", max_distance_bt_maps);
     ok &= nh_.getParam("print", print);
-    ok &= nh_.getParam("/side", side);
+    ok &= nh_.getParam("side", side_);
+    if(strcmp(side_.c_str(), "b") == 0)    side = 0;       
+    else if(strcmp(side_.c_str(), "y") == 0)    side = 1;
+    else    ROS_ERROR("side is not correct. Please check the side.");
 
     std::cout << "param: freq= " << freq << std::endl;
     std::cout << "param: unit= " << unit << std::endl;
     std::cout << "param: survive_prefix= " << survive_prefix << std::endl;
-    std::cout << "param:max_distance_bt_maps= " << max_distance_bt_maps << std::endl;
+    std::cout << "param: max_distance_bt_maps= " << max_distance_bt_maps << std::endl;
+    std::cout << "param: side= " << side_ << "(" << side << ")" << std::endl;
     if (ok) {
         std::cout << "node: " << node_name << " get parameters of node sucessed." << std::endl;
     }
@@ -260,7 +265,7 @@ void deleteParam()
     system(deleteparam.c_str());
     std::cout << "node: " << node_name << " parameters deleted." << std::endl;
 }
-tf::StampedTransform get_calibrate_tf(ros::NodeHandle nh_) {
+tf::StampedTransform get_calibrate2_tf(ros::NodeHandle nh_) {
     CALIPOSE calipos[4];
     CALIPOSE calicen;
     double cos_[4], sin_[4], cos_avg, sin_avg, coshalf_, sinhalf_;
@@ -390,6 +395,7 @@ ViveMap find_avg_map(ViveMap map0, ViveMap map1, bool* send_) {
 
 static void log_fn(SurviveSimpleContext* actx, SurviveLogLevel logLevel, const char* msg) {
     fprintf(stderr, "(%7.3f) SimpleApi: %s\n", survive_simple_run_time(actx), msg);
+    // log_fn_msg = msg;
 }
 
 int main(int argc, char** argv) {
@@ -410,33 +416,57 @@ int main(int argc, char** argv) {
         return 0;
     double start_time = OGGetAbsoluteTime();
     survive_simple_start_thread(actx);
+
     for (const SurviveSimpleObject* it = survive_simple_get_first_object(actx); it != 0;
         it = survive_simple_get_next_object(actx, it)) {
         printf("Found '%s'\n", survive_simple_object_name(it));
+        printf("Serial Number: %s\n", survive_simple_serial_number(it));
+    }
+    int num_devices = survive_simple_get_object_count(actx);
+    if(num_devices != num_LH + 1) {
+        ROS_ERROR("Number of devices is not correct. Please check the number of devices.");
+        ROS_ERROR("num_devices: %d, num_LH: %d", num_devices, num_LH);
     }
 
     initialize(nh_);
-    tf_rot = get_calibrate_tf(nh_);
+    tf_rot = get_calibrate2_tf(nh_);
     ros::Rate rate(freq);
     ros::Publisher vel_pub = nh.advertise<geometry_msgs::Twist>(vel_topic_name, 10);
     ros::ServiceClient run_client = nh.serviceClient<std_srvs::SetBool>(run_service_name);
     std_srvs::SetBool run_srv;
-    run_srv.request.data = true;
+    run_srv.request.data = false;
 
     ViveMap map0(survive_prefix, 0);
     ViveMap map1(survive_prefix, 1);
-    // ViveMap map2(survive_prefix, 2);
-
     map0.set_tf_from_lh(nh_, side);
+    if(num_LH == 2)
     map1.set_tf_from_lh(nh_, side);
-    // map2.set_tf_from_lh(nh_, side);
 
     struct SurviveSimpleEvent event = {};
     while (keepRunning && survive_simple_wait_for_event(actx, &event) != SurviveSimpleEventType_Shutdown && ros::ok()) {
+
+        // if (strncmp(log_fn_msg.c_str(), "Using LH 1", 9) == 0) {
+        //     num_ootx_done ++;
+        //     log_fn_msg = "";
+        //     if(num_ootx_done == num_LH)    printf("OOTX done.\n");
+        // }
+        // if(num_ootx_done < num_LH) continue;
+
         static enum SurviveSimpleEventType evt_type = SurviveSimpleEventType_None;
         static enum SurviveSimpleEventType evt_type_bf = SurviveSimpleEventType_None;
         evt_type_bf = evt_type;
         evt_type = event.event_type;
+        if (evt_type_bf != SurviveSimpleEventType_None && evt_type == SurviveSimpleEventType_None) {
+            run_srv.request.data = false;
+            run_client.call(run_srv);
+            ROS_ERROR("%s: stop running.", world_frame.c_str());
+        }
+        if (evt_type_bf != SurviveSimpleEventType_PoseUpdateEvent && evt_type == SurviveSimpleEventType_PoseUpdateEvent) {
+            run_srv.request.data = true;
+            run_client.call(run_srv);
+            ROS_INFO("%s: start running.", world_frame.c_str());
+        }
+
         for (const SurviveSimpleObject* it = survive_simple_get_first_object(actx);
             it != 0; it = survive_simple_get_next_object(actx, it)) {
             SurvivePose pose;
@@ -446,7 +476,7 @@ int main(int argc, char** argv) {
 
             if (print) {
                 ROS_INFO("event type: %d,", event.event_type);
-                ROS_INFO("object name: %s, serial number: %s, charge: %u%,",
+                ROS_INFO("object name: %s, serial number: %s, charge: %u%%,",
                     survive_simple_object_name(it),
                     survive_simple_serial_number(it),
                     survive_simple_object_charge_percet(it));
@@ -479,29 +509,20 @@ int main(int argc, char** argv) {
         }
         if (evt_type == SurviveSimpleEventType_PoseUpdateEvent) {
             map0.send_tf_from_lh();
-            map1.send_tf_from_lh();
-            // map2.send_tf_from_lh();
             map0.lookup_tf_to_world(world_frame, listener);
-            map1.lookup_tf_to_world(world_frame, listener);
-            // map2.lookup_tf_to_world(world_frame, listener);
+            if(num_LH == 2){
+                map1.send_tf_from_lh();
+                map1.lookup_tf_to_world(world_frame, listener);
+            }
 
             bool send = true;
-            ViveMap map_avg = find_avg_map(map0, map1, &send);
+            ViveMap map_avg = map0;
+            if(num_LH == 2)     map_avg = find_avg_map(map0, map1, &send);
             if (send) {
                 map_avg.send_tf_to_world(world_frame);
                 br.sendTransform(tf::StampedTransform(tf_rot, ros::Time::now(),
-                    survive_prefix + "map", survive_prefix + "map_avg"));
+                 survive_prefix + "map", survive_prefix + "map_avg"));
             }
-        }
-        if (evt_type_bf != SurviveSimpleEventType_None && evt_type == SurviveSimpleEventType_None) {
-            run_srv.request.data = false;
-            run_client.call(run_srv);
-            ROS_ERROR("%s: stop running.", world_frame.c_str());
-        }
-        if (evt_type_bf != SurviveSimpleEventType_PoseUpdateEvent && evt_type == SurviveSimpleEventType_PoseUpdateEvent) {
-            run_srv.request.data = true;
-            run_client.call(run_srv);
-            ROS_INFO("%s: start running.", world_frame.c_str());
         }
         rate.sleep();
     }
