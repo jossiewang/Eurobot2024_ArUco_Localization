@@ -15,6 +15,8 @@ static volatile int keepRunning = 1;
 #include <signal.h>
 #include <stdlib.h>
 
+#define PI 3.14159265358979323846
+
 
 void intHandler(int dummy) {
     if (keepRunning == 0)
@@ -175,25 +177,30 @@ int main(int argc, char** argv) {
                 ok = 0;
             }
 
-            if (strcmp(side.c_str(), "b") == 0) {
-                br.sendTransform(tf::StampedTransform(transform_trackerAbsToMap, ros::Time::now(), "tracker", "map_blue"));
-                br.sendTransform(tf::StampedTransform(transform_MapToMap, ros::Time::now(), "map_blue", "map_yellow"));
-            }
-            else if (strcmp(side.c_str(), "y") == 0) {
-                br.sendTransform(tf::StampedTransform(transform_trackerAbsToMap, ros::Time::now(), "tracker", "map_yellow"));
-                br.sendTransform(tf::StampedTransform(transform_MapToMap, ros::Time::now(), "map_yellow", "map_blue"));
-            }
+            std::string map_side = side == "b" ? "map_blue" : "map_yellow";
+            std::string map_child = side == "b" ? "map_yellow" : "map_blue";
+            br.sendTransform(tf::StampedTransform(transform_trackerAbsToMap, ros::Time::now(), "tracker", map_side));
+            if(num_LH == 1)
+                br.sendTransform(tf::StampedTransform(transform_MapToMap, ros::Time::now(), map_side, map_child));
 
             try {
-                listener.lookupTransform("LH0", "map_yellow", ros::Time(0), transform_LH0ToMapYellow);
-                listener.lookupTransform("map_yellow", "LH0", ros::Time(0), transform_MapYellowToLH0);
-                listener.lookupTransform("LH0", "map_blue", ros::Time(0), transform_LH0ToMapBlue);
-                listener.lookupTransform("map_blue", "LH0", ros::Time(0), transform_MapBlueToLH0);
+                if(dump_blue){
+                    listener.lookupTransform("LH0", "map_blue", ros::Time(0), transform_LH0ToMapBlue);
+                    listener.lookupTransform("map_blue", "LH0", ros::Time(0), transform_MapBlueToLH0);
+                }
+                if(dump_yellow){
+                    listener.lookupTransform("LH0", "map_yellow", ros::Time(0), transform_LH0ToMapYellow);
+                    listener.lookupTransform("map_yellow", "LH0", ros::Time(0), transform_MapYellowToLH0);
+                }
                 if(num_LH == 2){
-                    listener.lookupTransform("LH1", "map_yellow", ros::Time(0), transform_LH1ToMapYellow);
-                    listener.lookupTransform("map_yellow", "LH1", ros::Time(0), transform_MapYellowToLH1);
-                    listener.lookupTransform("LH1", "map_blue", ros::Time(0), transform_LH1ToMapBlue);
-                    listener.lookupTransform("map_blue", "LH1", ros::Time(0), transform_MapBlueToLH1);
+                    if(dump_blue){
+                        listener.lookupTransform("LH1", "map_blue", ros::Time(0), transform_LH1ToMapBlue);
+                        listener.lookupTransform("map_blue", "LH1", ros::Time(0), transform_MapBlueToLH1);
+                    }
+                    if(dump_yellow){
+                        listener.lookupTransform("LH1", "map_yellow", ros::Time(0), transform_LH1ToMapYellow);
+                        listener.lookupTransform("map_yellow", "LH1", ros::Time(0), transform_MapYellowToLH1);
+                    }
                 }
             }
             catch (tf::TransformException& ex) {
@@ -201,25 +208,29 @@ int main(int argc, char** argv) {
                 ok = 0;
             }
 
-            printf("transform: map_yellow to LH0\n");
-            printf("%.3f, %.3f, %.3f\n", transform_MapYellowToLH0.getOrigin().x(),
-             transform_MapYellowToLH0.getOrigin().y(), transform_MapYellowToLH0.getOrigin().z());
-            if(num_LH == 2){
-                printf("transform: map_yellow to LH1\n");
-                printf("%.3f, %.3f, %.3f\n", transform_MapYellowToLH1.getOrigin().x(),
-                 transform_MapYellowToLH1.getOrigin().y(), transform_MapYellowToLH1.getOrigin().z());
+            if(dump_yellow){
+                printf("transform: map_yellow to LH0\n");
+                printf("%.3f, %.3f, %.3f\n", transform_MapYellowToLH0.getOrigin().x(),
+                transform_MapYellowToLH0.getOrigin().y(), transform_MapYellowToLH0.getOrigin().z());
+                if(num_LH == 2){
+                    printf("transform: map_yellow to LH1\n");
+                    printf("%.3f, %.3f, %.3f\n", transform_MapYellowToLH1.getOrigin().x(),
+                    transform_MapYellowToLH1.getOrigin().y(), transform_MapYellowToLH1.getOrigin().z());
+                }
             }
-            printf("transform: map_blue to LH0\n");
-            printf("%.3f, %.3f, %.3f\n", transform_MapBlueToLH0.getOrigin().x(),
-             transform_MapBlueToLH0.getOrigin().y(), transform_MapBlueToLH0.getOrigin().z());
-            if(num_LH == 2){
-                printf("transform: map_blue to LH1\n");
-                printf("%.3f, %.3f, %.3f\n", transform_MapBlueToLH1.getOrigin().x(),
-                 transform_MapBlueToLH1.getOrigin().y(), transform_MapBlueToLH1.getOrigin().z());
+            if(dump_blue){
+                printf("transform: map_blue to LH0\n");
+                printf("%.3f, %.3f, %.3f\n", transform_MapBlueToLH0.getOrigin().x(),
+                transform_MapBlueToLH0.getOrigin().y(), transform_MapBlueToLH0.getOrigin().z());
+                if(num_LH == 2){
+                    printf("transform: map_blue to LH1\n");
+                    printf("%.3f, %.3f, %.3f\n", transform_MapBlueToLH1.getOrigin().x(),
+                    transform_MapBlueToLH1.getOrigin().y(), transform_MapBlueToLH1.getOrigin().z());
+                }
             }
 
             if(!ok) break;
-            printf("~ ~ ~ ~ ~\t\t\tNow You can press Ctrl+C to dump the yaml\t\t\t~ ~ ~ ~ ~\n");
+            printf("~\tNow You can press Ctrl+C to dump the yaml\t~\n");
             break;
         }
         }
@@ -254,6 +265,14 @@ void initialize(ros::NodeHandle nh_) {
     nh_.getParam("dump_yellow", dump_yellow);
     nh_.getParam("side", side); //b blue; y yellow.
 
+    ROS_INFO("num_LH: %d", num_LH);
+    ROS_INFO("side: %s\n", side.c_str());
+
+    if(num_LH == 2){
+        if(side == "b")     dump_yellow = false;
+        else if(side == "y")    dump_blue = false;
+    }
+
     if (strcmp("tracker_A", tracker_name.c_str()) == 0) tracker_serial_number = "LHR-94135635";
     if (strcmp("tracker_B", tracker_name.c_str()) == 0) tracker_serial_number = "LHR-15565625";
     if (strcmp("tracker_C", tracker_name.c_str()) == 0) tracker_serial_number = "LHR-662B1E75";
@@ -262,15 +281,18 @@ void initialize(ros::NodeHandle nh_) {
 
     transform_trackerAbsToMap.setOrigin(tf::Vector3(tracker_abs.x, tracker_abs.y, tracker_abs.z));
     transform_trackerAbsToMap.setRotation(tf::Quaternion(tracker_abs.X, tracker_abs.Y, tracker_abs.Z, tracker_abs.W).normalize());
-    transform_MapToMap.setOrigin(tf::Vector3(3, 2, 0));
-    transform_MapToMap.setRotation(tf::Quaternion(0, 0, 1, 0).normalize()); //X, Y, Z, W. rotate 180 degree.
+    if(side == "b"){
+        transform_MapToMap.setOrigin(tf::Vector3(0, 3, 0));
+        transform_MapToMap.setRotation(tf::Quaternion(0, 0, -0.7071068, 0.7071068).normalize());
+    }else if(side == "y"){
+        transform_MapToMap.setOrigin(tf::Vector3(3, 0, 0));
+        transform_MapToMap.setRotation(tf::Quaternion(0, 0, 0.7071068, 0.7071068).normalize());
+    }
 }
 
 void reloadParam(ros::NodeHandle nh_)
 {
     auto node_name = ros::this_node::getName();
-    nh_.getParam("dump_blue", dump_blue);
-    nh_.getParam("dump_yellow", dump_yellow);
 
     if (dump_yellow) {
         nh_.setParam("Yellow/LH0_W", transform_LH0ToMapYellow.getRotation().getW());

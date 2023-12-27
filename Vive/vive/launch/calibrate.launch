@@ -4,8 +4,7 @@
         <rosparam file="$(find vive)/param/vive_calibrate.yaml" command="load" />
         <param name="num_LH" value="1"/>
         <param name="calibrate_tracker" value="tracker_D"/>
-        <param name="side" value="b"/>  <!-- now is blue -->
-        <!-- <param name="side" value="y"/>  now is yellow -->
+        <param name="side" value="b"/>  <!-- 'b' or 'y' -->
         <param name="dump_blue" value="true"/>
         <param name="dump_yellow" value="true"/>
         <param name="tracker_abs_W" value="0.0"/>

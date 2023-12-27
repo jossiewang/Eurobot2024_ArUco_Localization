@@ -347,7 +347,7 @@ ViveMap find_avg_map(ViveMap map0, ViveMap map1, bool* send_) {
     // bool ok2 = true;
     int divisor = num_LH;
 
-    double d01 = find_distance(map0, map1);
+    double d01 = find_distance(map0, map1); //兩個差太多不發
     // double d12 = find_distance(map1, map2);
     // double d20 = find_distance(map2, map0);
     //要在看看數值有問題怎半
@@ -500,6 +500,7 @@ int main(int argc, char** argv) {
             }
 
             if (evt_type == SurviveSimpleEventType_PoseUpdateEvent) {
+                if(num_LH < 2 && strcmp(survive_simple_serial_number(it), "LHB-2BEE096A") == 0) continue;
                 ViveDevice device(survive_prefix, survive_simple_serial_number(it));
                 device.send_tf_from_world(pose, world_frame, it, tracker);
                 if (survive_simple_object_get_type(it) == SurviveSimpleObject_OBJECT) {
@@ -516,7 +517,7 @@ int main(int argc, char** argv) {
             }
 
             bool send = true;
-            ViveMap map_avg = map0;
+            ViveMap map_avg = map_avg = find_avg_map(map0, map0, &send);
             if(num_LH == 2)     map_avg = find_avg_map(map0, map1, &send);
             if (send) {
                 map_avg.send_tf_to_world(world_frame);
