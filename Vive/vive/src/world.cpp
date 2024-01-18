@@ -167,6 +167,7 @@ void ViveMap::lookup_tf_to_world(std::string wf_, tf::TransformListener& listene
         ROS_WARN_THROTTLE(1, "%s", ex.what());
         has_tf_to_world_ = false;
     }
+    // if(!has_tf_to_world_) return;
     p_to_world.x = tf_to_world.getOrigin().getX();
     p_to_world.y = tf_to_world.getOrigin().getY();
     p_to_world.z = tf_to_world.getOrigin().getZ();
@@ -345,7 +346,7 @@ ViveMap find_avg_map(ViveMap map0, ViveMap map1, bool* send_) {
     VIVEPOSE avg_p;
     bool ok0 = true;
     bool ok1 = true;
-    int divisor = num_LH;
+    int divisor = 2;
 
     double d01 = find_distance(map0, map1);
     if ((d01 > max_distance_bt_maps)){
@@ -379,6 +380,7 @@ ViveMap find_avg_map(ViveMap map0, ViveMap map1, bool* send_) {
     avg_tf.setRotation(avg_q);
 
     avg_map.set_tf_to_world(avg_tf, avg_p);
+
 
     return avg_map;
 }
@@ -429,7 +431,7 @@ int main(int argc, char** argv) {
     ViveMap map1(survive_prefix, 1);
     map0.set_tf_from_lh(nh_, side);
     if(num_LH == 2)
-    map1.set_tf_from_lh(nh_, side);
+        map1.set_tf_from_lh(nh_, side);
 
     struct SurviveSimpleEvent event = {};
     while (keepRunning && survive_simple_wait_for_event(actx, &event) != SurviveSimpleEventType_Shutdown && ros::ok()) {
@@ -445,6 +447,9 @@ int main(int argc, char** argv) {
         static enum SurviveSimpleEventType evt_type_bf = SurviveSimpleEventType_None;
         evt_type_bf = evt_type;
         evt_type = event.event_type;
+
+        // ROS_INFO("evt_type: %d", evt_type);
+
         if (evt_type_bf != SurviveSimpleEventType_None && evt_type == SurviveSimpleEventType_None) {
             run_srv.request.data = false;
             run_client.call(run_srv);
@@ -506,7 +511,7 @@ int main(int argc, char** argv) {
             }
 
             bool send = true;
-            ViveMap map_avg = map_avg = find_avg_map(map0, map0, &send);
+            ViveMap map_avg = find_avg_map(map0, map0, &send);
             if(num_LH == 2)     map_avg = find_avg_map(map0, map1, &send);
             if (send) {
                 map_avg.send_tf_to_world(world_frame);

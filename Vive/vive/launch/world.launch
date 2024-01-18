@@ -3,8 +3,8 @@
     <arg name="survive_tracker" default="trackerD" />
     <arg name="side" default="y" />
     <arg name="map_tole" default="0.2" />
-    <arg name="print_world_active" default="false" />
-    <arg name="freq_" default="40" />
+    <arg name="print_world_active" default="true" />
+    <arg name="freq_" default="5" />
     <arg name="unit_" default="100" />
     <!-- <param name="side" value="b"/> global -->
 
