@@ -1,7 +1,7 @@
 <launch>
     <arg name="survive_active" default="true" />
     <arg name="survive_tracker" default="trackerD" />
-    <arg name="side" default="y" />
+    <arg name="side" default="b" />
     <arg name="map_tole" default="0.2" />
     <arg name="print_world_active" default="true" />
     <arg name="freq_" default="5" />
@@ -9,7 +9,7 @@
     <!-- <param name="side" value="b"/> global -->
 
     <group if="$(arg survive_active)">
-        <node name="vive_world" pkg="vive" type="world" output="screen">
+        <node name="world" pkg="vive" type="world" output="screen">
             <rosparam file="$(find vive)/param/vive_calibrate.yaml" command="load" /> <!-- tf_to_map -->
             <param name="tracker" type="string" value="$(arg survive_tracker)" />
             <param name="survive_prefix" type="string" value="survive_" />

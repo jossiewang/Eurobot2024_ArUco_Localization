@@ -362,6 +362,8 @@ void reloadParam(ros::NodeHandle nh_)
     nh_.deleteParam("side");
     nh_.deleteParam("dump_yellow");
     nh_.deleteParam("dump_blue");
+    nh_.deleteParam("semiwidth");
+    nh_.deleteParam("semiheight");
 
 
     std::string yaml_path = package_path + "/param/vive_calibrate.yaml";
