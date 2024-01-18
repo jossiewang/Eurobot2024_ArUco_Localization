@@ -61,6 +61,7 @@ tf::StampedTransform transform_surviveWorldToTracker;
 tf::StampedTransform transform_trackerAbsToMap;
 tf::StampedTransform transform_MapToMap;
 
+std::string get_package_path(std::string package_name);
 void initialize(ros::NodeHandle);
 void reloadParam(ros::NodeHandle);
 
@@ -76,20 +77,8 @@ int main(int argc, char** argv) {
     signal(SIGKILL, intHandler);
 #endif
 
-    std::string package_name = "vive";
-    std::string fp_command = "rospack find " + package_name;
-    FILE *fp = popen(fp_command.c_str(), "r");
-    if (!fp) {
-        std::cerr << "Error executing rospack command." << std::endl;
-        return 1;
-    }
-    std::cout<<"\nrospack command executed."<<std::endl;
-    char fp_path[1024];
-    fgets(fp_path, sizeof(fp_path), fp);
-    fp_path[strlen(fp_path) - 1] = '\0';
-    package_path = fp_path;
-    std::cout<<"package path: "<<package_path<<std::endl<<std::endl;
-    pclose(fp);
+    package_path = get_package_path("vive");
+    if(package_path == "none") return 1;
     
 
     ros::init(argc, argv, "calibrate");
@@ -247,6 +236,22 @@ int main(int argc, char** argv) {
     return 0;
 }
 
+std::string get_package_path(std::string package_name) {
+    std::string fp_command = "rospack find " + package_name;
+    FILE *fp = popen(fp_command.c_str(), "r");
+    if (!fp) {
+        std::cerr << "Error executing rospack command." << std::endl;
+        return "none";
+    }
+    std::cout<<"\nrospack command executed."<<std::endl;
+    char fp_path[1024];
+    fgets(fp_path, sizeof(fp_path), fp);
+    fp_path[strlen(fp_path) - 1] = '\0';
+    package_path = fp_path;
+    std::cout<<"package path: "<<package_path<<std::endl<<std::endl;
+    pclose(fp);
+    return package_path;
+}
 void initialize(ros::NodeHandle nh_) {
 
     std::cout << "removing config.json..." << std::endl;

@@ -303,6 +303,7 @@ int freq = 20;
 int unit = 1;
 std::string name_space;
 std::string node_name;
+std::string package_path;
 bool world_is_running = true;
 int step;
 CALIPOSE p1, p2, p3, p4;
@@ -377,13 +378,34 @@ void dump_params(ros::NodeHandle nh_) {
     nh_.deleteParam("rot_from_tracker_Y");
     nh_.deleteParam("rot_from_tracker_Z");
 
-    auto path = "rosparam dump ~/localization2023/src/vive/vive/param/vive_calibrate.yaml vive_calibrate2";
-    system(path);
+    std::string yaml_path = package_path + "/param/vive_calibrate.yaml";
+    std::string dump_command = "rosparam dump " + yaml_path + " calibrate2";
+    system(dump_command.c_str());
     printf("dumped param to vive_claibrate.yaml\n");
-
+}
+std::string get_package_path(std::string package_name) {
+    std::string fp_command = "rospack find " + package_name;
+    FILE *fp = popen(fp_command.c_str(), "r");
+    if (!fp) {
+        std::cerr << "Error executing rospack command." << std::endl;
+        return "none";
+    }
+    std::cout<<"\nrospack command executed."<<std::endl;
+    char fp_path[1024];
+    fgets(fp_path, sizeof(fp_path), fp);
+    fp_path[strlen(fp_path) - 1] = '\0';
+    package_path = fp_path;
+    std::cout<<"package path: "<<package_path<<std::endl<<std::endl;
+    pclose(fp);
+    return package_path;
 }
 
 int main(int argc, char** argv) {
+
+    package_path = get_package_path("vive");
+    if(package_path == "none") return 1;
+
+
     ros::init(argc, argv, "vive_trackerpose");
     ros::NodeHandle nh; //path: the ns of <group> of the launch file
     ros::NodeHandle nh_("~");   //path: this node

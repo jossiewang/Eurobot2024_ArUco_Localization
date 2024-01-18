@@ -6,15 +6,15 @@
     
     <node name="world" pkg="vive" type="world" output="screen">
         <rosparam file="$(find vive)/param/vive_calibrate.yaml" command="load" /> <!-- tf_to_map -->
-        <arg name ="survive_tracker" type="string" value="$(arg tracker_)"/>
+        <param name ="tracker" type="string" value="$(arg tracker_)"/>
         <param name ="survive_prefix" type="string" value="survive_"/>
         <param name ="vel_topic_name" type="string" value="tracker_vel"/>
         <param name ="run_service_name" type="string" value="survive_world_is_running"/>
-        <arg name ="map_tole" type="double" value="0.2"/>
-        <arg name ="print_world_active" type="bool" value="false"/>
-        <arg name ="freq_" type="int" value="$(arg frequency)"/>
-        <arg name ="unit_" type="int" value="$(arg print_unit)"/>
-        <arg name ="side" type="string" value="$(arg side_)"/>
+        <param name ="max_distance_bt_maps" type="double" value="0.2"/>
+        <param name ="print" type="bool" value="false"/>
+        <param name ="freq" type="int" value="$(arg frequency)"/>
+        <param name ="unit" type="int" value="$(arg print_unit)"/>
+        <param name ="side" type="string" value="$(arg side_)"/>
     </node>
     <node pkg="vive" type="calibrate2" name="calibrate2" output="screen">
         <rosparam file="$(find vive)/param/vive_calibrate.yaml" command="load" /> <!-- tf_to_map -->
@@ -27,5 +27,15 @@
         <param name="rot_from_tracker_X" type="double" value="0"/>
         <param name="rot_from_tracker_Y" type="double" value="0"/>
         <param name="rot_from_tracker_Z" type="double" value="0"/>
+
+        <param name="P1/pos_true_x" type="double" value="2.5"/>
+        <param name="P1/pos_true_y" type="double" value="1.5"/>
+        <param name="P2/pos_true_x" type="double" value="0.5"/>
+        <param name="P2/pos_true_y" type="double" value="1.5"/>
+        <param name="P3/pos_true_x" type="double" value="0.5"/>
+        <param name="P3/pos_true_y" type="double" value="0.5"/>
+        <param name="P4/pos_true_x" type="double" value="2.5"/>
+        <param name="P4/pos_true_y" type="double" value="0.5"/>
+        
     </node>
 </launch>

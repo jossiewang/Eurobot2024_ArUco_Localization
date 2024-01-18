@@ -292,6 +292,9 @@ tf::StampedTransform get_calibrate2_tf(ros::NodeHandle nh_) {
     ok &= nh_.getParam("P4/pos_get__x", calipos[3].pg.x);
     ok &= nh_.getParam("P4/pos_get__y", calipos[3].pg.y);
 
+    if(ok)  std::cout << "node: " << node_name << " get parameters of calibrate2 sucessed." << std::endl;
+    else    std::cout << "node: " << node_name << " get parameters of calibrate2 failed." << std::endl;
+
     calicen.pt.x = 1.5;
     calicen.pt.y = 1.0;
     calicen.pg.x = (double)(calipos[0].pg.x + calipos[1].pg.x + calipos[2].pg.x + calipos[3].pg.x) / 4;
@@ -305,11 +308,19 @@ tf::StampedTransform get_calibrate2_tf(ros::NodeHandle nh_) {
         calipos[i].pt.l = sqrt(pow(calipos[i].pt.x, 2) + pow(calipos[i].pt.y, 2));
         calipos[i].pg.l = sqrt(pow(calipos[i].pg.x, 2) + pow(calipos[i].pg.y, 2));
 
+        ROS_INFO("calipos[%d].pt.x: %f", i, calipos[i].pt.x);
+        ROS_INFO("calipos[%d].pt.y: %f", i, calipos[i].pt.y);
+        ROS_INFO("calipos[%d].pt.l: %f", i, calipos[i].pt.l);
+        ROS_INFO("calipos[%d].pg.x: %f", i, calipos[i].pg.x);
+        ROS_INFO("calipos[%d].pg.y: %f", i, calipos[i].pg.y);
+        ROS_INFO("calipos[%d].pg.l: %f", i, calipos[i].pg.l);
+        std::cout << std::endl;
+
         //cos, sin: in radian, between -1 and 1.
         cos_[i] = (calipos[i].pg.x * calipos[i].pt.x + calipos[i].pg.y * calipos[i].pt.y) /
-            (calipos[i].pg.l * calipos[i].pt.l);
+            (calipos[i].pg.l * calipos[i].pt.l);//dot product
         sin_[i] = (calipos[i].pg.x * calipos[i].pt.y - calipos[i].pg.y * calipos[i].pt.x) /
-            (calipos[i].pg.l * calipos[i].pt.l);
+            (calipos[i].pg.l * calipos[i].pt.l);//cross product
     }
 
     cos_avg = (double)(cos_[0] + cos_[1] + cos_[2] + cos_[3]) / 4;
