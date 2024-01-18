@@ -44,6 +44,8 @@ int num_LH = 1;
 int num_ootx_done = 0;
 bool dump_blue;
 bool dump_yellow;
+double semiwidth = 0.052;
+double semiheight = 0.092;
 
 tf::StampedTransform transform_LH0ToMapYellow;
 tf::StampedTransform transform_LH1ToMapYellow;
@@ -264,7 +266,10 @@ void initialize(ros::NodeHandle nh_) {
     nh_.getParam("dump_blue", dump_blue);
     nh_.getParam("dump_yellow", dump_yellow);
     nh_.getParam("side", side); //b blue; y yellow.
-
+    nh_.getParam("semiwidth", semiwidth);
+    nh_.getParam("semiheight", semiheight);
+    double offset = semiwidth + semiheight;
+    
     ROS_INFO("num_LH: %d", num_LH);
     ROS_INFO("side: %s\n", side.c_str());
 
@@ -282,10 +287,10 @@ void initialize(ros::NodeHandle nh_) {
     transform_trackerAbsToMap.setOrigin(tf::Vector3(tracker_abs.x, tracker_abs.y, tracker_abs.z));
     transform_trackerAbsToMap.setRotation(tf::Quaternion(tracker_abs.X, tracker_abs.Y, tracker_abs.Z, tracker_abs.W).normalize());
     if(side == "b"){
-        transform_MapToMap.setOrigin(tf::Vector3(0, 3, 0));
+        transform_MapToMap.setOrigin(tf::Vector3(-offset, 3+offset, 0));
         transform_MapToMap.setRotation(tf::Quaternion(0, 0, -0.7071068, 0.7071068).normalize());
     }else if(side == "y"){
-        transform_MapToMap.setOrigin(tf::Vector3(3, 0, 0));
+        transform_MapToMap.setOrigin(tf::Vector3(3+offset, offset, 0));
         transform_MapToMap.setRotation(tf::Quaternion(0, 0, 0.7071068, 0.7071068).normalize());
     }
 }

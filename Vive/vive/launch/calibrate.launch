@@ -1,10 +1,12 @@
 <launch>
+    <arg name="semiwidth" default="0.052" />
+    <arg name="semiheight" default="0.092" />
     
     <node name="calibrate" pkg="vive" type="calibrate" output="screen">
         <rosparam file="$(find vive)/param/vive_calibrate.yaml" command="load" />
         <param name="num_LH" value="1"/>
         <param name="calibrate_tracker" value="tracker_D"/>
-        <param name="side" value="b"/>  <!-- 'b' or 'y' -->
+        <param name="side" value="y"/>  <!-- 'b' or 'y' -->
         <param name="dump_blue" value="true"/>
         <param name="dump_yellow" value="true"/>
         <param name="tracker_abs_W" value="0.0"/>
@@ -14,6 +16,8 @@
         <param name="tracker_abs_x" value="1.0"/>
         <param name="tracker_abs_y" value="1.5"/>
         <param name="tracker_abs_z" value="0.0"/>
+        <param name="semiwidth" type="double" value="$(arg semiwidth)" />
+        <param name="semiheight" type="double" value="$(arg semiheight)" />
     </node>
 
 </launch>

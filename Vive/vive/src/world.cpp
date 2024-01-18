@@ -202,7 +202,8 @@ void ViveMap::set_tf_to_world(tf::StampedTransform tf_, VIVEPOSE p_) {
     tf_to_world = tf_;
     p_to_world = p_;
 }
-void ViveMap::send_tf_to_world(std::string wf_) { br.sendTransform(tf::StampedTransform(tf_to_world, ros::Time::now(), frame, wf_)); }
+void ViveMap::send_tf_to_world(std::string wf_) 
+ { br.sendTransform(tf::StampedTransform(tf_to_world, ros::Time::now(), frame, wf_)); }
 bool ViveMap::has_tf_to_world() { return has_tf_to_world_; }
 
 /*globle variables*/
@@ -344,39 +345,28 @@ ViveMap find_avg_map(ViveMap map0, ViveMap map1, bool* send_) {
     VIVEPOSE avg_p;
     bool ok0 = true;
     bool ok1 = true;
-    // bool ok2 = true;
     int divisor = num_LH;
 
-    double d01 = find_distance(map0, map1); //兩個差太多不發
-    // double d12 = find_distance(map1, map2);
-    // double d20 = find_distance(map2, map0);
-    //要在看看數值有問題怎半
-    // if ((d01 > max_distance_bt_maps && d20 > max_distance_bt_maps) || !map0.has_tf_to_world()) { ok0 = false; divisor--; }
-    // if ((d12 > max_distance_bt_maps && d01 > max_distance_bt_maps) || !map1.has_tf_to_world()) { ok1 = false; divisor--; }
-    // if ((d20 > max_distance_bt_maps && d12 > max_distance_bt_maps) || !map2.has_tf_to_world()) { ok2 = false; divisor--; }
+    double d01 = find_distance(map0, map1);
+    if ((d01 > max_distance_bt_maps)){
+        //if the distance between two maps is too large, do not send tf.
+        ROS_WARN_THROTTLE(1, "%s: did not send tf (map->world).", world_frame.c_str());
+        *send_ = false;
+    }
     if (print) {
         ROS_INFO_THROTTLE(1, "%s/(ok0 ok1 d01): %d %d %f",
             world_frame.c_str(), ok0, ok1, d01);
     }
 
-    if (divisor == 0) {
-        ROS_WARN_THROTTLE(1, "%s: did not send tf (map->world).", world_frame.c_str());
-        // ROS_WARN_THROTTLE(1, "%s/(d01 d12 d20): %f %f %f", world_frame.c_str(), d01, d12, d20);
-        divisor = 1;
-        *send_ = false;
-    }
     avg_p.x = (double)
         map0.get_p_to_world(ok0).x / divisor +
         map1.get_p_to_world(ok1).x / divisor;
-        // map2.get_p_to_world(ok2).x / divisor;
     avg_p.y = (double)
         map0.get_p_to_world(ok0).y / divisor +
         map1.get_p_to_world(ok1).y / divisor;
-        // map2.get_p_to_world(ok2).y / divisor;
     avg_p.z = (double)
         map0.get_p_to_world(ok0).z / divisor +
         map1.get_p_to_world(ok1).z / divisor;
-        // map2.get_p_to_world(ok2).z / divisor;
     avg_q =
         map0.get_q_to_world_devide_by(divisor, ok0).operator +(
             map1.get_q_to_world_devide_by(divisor, ok1));
@@ -395,7 +385,6 @@ ViveMap find_avg_map(ViveMap map0, ViveMap map1, bool* send_) {
 
 static void log_fn(SurviveSimpleContext* actx, SurviveLogLevel logLevel, const char* msg) {
     fprintf(stderr, "(%7.3f) SimpleApi: %s\n", survive_simple_run_time(actx), msg);
-    // log_fn_msg = msg;
 }
 
 int main(int argc, char** argv) {
