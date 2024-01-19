@@ -49,7 +49,7 @@ public:
     void publish_();
     void publish_vive_pose(bool status, tf::Vector3 out_vel);
     void publish_tracker_vel(tf::Vector3 vel, ros::Publisher vel_pub);
-    void print_pose(int unit_);
+    void print_pose(double unit_);
 
     void trans_vel();
     LOWPASSVEL lowpass(tf::Vector3 in_vel, tf::Vector3 last_out_vel);
@@ -131,7 +131,7 @@ Rival::Rival(ros::NodeHandle nh_g, ros::NodeHandle nh_p) {
 
     vel_sub = nh.subscribe(tracker_vel_topic,10, &Rival::vel_callback, this);
     pose_pub = nh.advertise<nav_msgs::Odometry>(topic_name, 10);
-    error_pub = nh.advertise<std_msgs::Float64>(robot_name + "/error", 10);
+    // error_pub = nh.advertise<std_msgs::Float64>(robot_name + "/error", 10);
     vel_raw_pub = nh.advertise<geometry_msgs::Point>("tracker_vel_raw", 10);
     vel_diff_pub = nh.advertise<geometry_msgs::Point>("tracker_vel_diff", 10);  
 
@@ -214,7 +214,7 @@ void Rival::publish_(){
     if(max_limit_active) diff_vel = max_vel_limit(diff_vel.out_vel, diff_vel.last_vel);
     publish_tracker_vel(diff_vel.out_vel, vel_diff_pub);
     
-    // choose one velocity to publish (api or diff)
+    // choose one velocity to publish vive_pose(api or diff)
     if (strcmp(pub_vel_category.c_str(), "diff") == 0){
         publish_vive_pose(status,diff_vel.out_vel);
     }
@@ -278,22 +278,22 @@ void Rival::publish_vive_pose(bool status, tf::Vector3 out_vel) {
 
 }
 
-void Rival::print_pose(int unit_) {
+void Rival::print_pose(double unit_) {
 
-    poseV.x = transform_from_map.getOrigin().getX() * unit_;
-    poseV.y = transform_from_map.getOrigin().getY() * unit_;
-    poseV.z = transform_from_map.getOrigin().getZ() * unit_;
-    poseV.W = transform_from_map.getRotation().getW() * unit_;
-    poseV.X = transform_from_map.getRotation().getX() * unit_;
-    poseV.Y = transform_from_map.getRotation().getY() * unit_;
-    poseV.Z = transform_from_map.getRotation().getZ() * unit_;
+    poseV.x = transform_from_map.getOrigin().getX() / unit_;
+    poseV.y = transform_from_map.getOrigin().getY() / unit_;
+    poseV.z = transform_from_map.getOrigin().getZ() / unit_;
+    poseV.W = transform_from_map.getRotation().getW() / unit_;
+    poseV.X = transform_from_map.getRotation().getX() / unit_;
+    poseV.Y = transform_from_map.getRotation().getY() / unit_;
+    poseV.Z = transform_from_map.getRotation().getZ() / unit_;
 
     if (has_tf & print_active && print_active) {
         printf("%s / trackerpose: %s -> %s (x y z)\n", robot_name.c_str(), map_frame.c_str(), tracker_frame.c_str());
         printf("%6.3f %6.3f %6.3f \n", poseV.x, poseV.y, poseV.z);
-        printf("%s tracker vel\n",robot_name.c_str());
-        printf("%4.2f, %4.2f, %4.2f\n", pose.twist.twist.linear.x, pose.twist.twist.linear.y, pose.twist.twist.linear.z);
-        printf("%s tracker rota\n",robot_name.c_str());
+        printf("%s tracker vel (x y)\n",robot_name.c_str());
+        printf("%4.2f, %4.2f\n", pose.twist.twist.linear.x, pose.twist.twist.linear.y);
+        printf("%s tracker rota (z)\n",robot_name.c_str());
         printf("%4.2f\n", pose.twist.twist.angular.z);
 
 
@@ -302,7 +302,8 @@ void Rival::print_pose(int unit_) {
 }
 
 int freq = 20;
-int unit = 1;
+double unit = 1;
+bool pub_debug_active = true;
 std::string node_name;
 bool world_is_running = true;
 
@@ -313,6 +314,7 @@ void initialize(ros::NodeHandle nh_) {
 
     ok &= nh_.getParam("freq", freq);
     ok &= nh_.getParam("unit", unit);
+    ok &= nh_.getParam("pub_debug_active", pub_debug_active);
     std::cout << "param: freq = " << freq << std::endl;
     std::cout << "param: unit = " << unit << std::endl;
 

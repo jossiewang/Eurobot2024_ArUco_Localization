@@ -1,6 +1,4 @@
 <launch>
-    <arg name="sec_LH" default="true"/> <!-- true = 2 or false = 1 -->
-
     <arg name="rival_active" default="true"/>
     <arg name="rival_tracker" default="trackerD"/>
     <arg name="lowpass_active_" default="true"/>
@@ -11,12 +9,12 @@
     <arg name="tole_" default="0.05"/>
     <arg name="freq_" default="20"/>
     <arg name="print_freq_" default="0.5"/>
-    <arg name="unit_" default="1"/>
+    <arg name="unit_" default="0.01"/>
     <arg name="side" default="b"/>
-    <arg name="print_world_active" default="true"/> <!-- vive_world -->
-    <arg name="print_rival_active" default="true"/> <!-- vive_rival -->
-    <arg name="pub_debug_active_" default="false"/> <!-- vive_rival raw/diff velocity data pub -->
-    <arg name="pub_vel_category_" default="diff"/> <!-- vive_rival velocity category (diff/api)-->
+    <arg name="print_world_active" default="false"/> <!-- world -->
+    <arg name="print_rival_active" default="true"/> <!-- rival -->
+    <arg name="pub_debug_active_" default="false"/> <!-- rival raw/diff velocity data pub -->
+    <arg name="pub_vel_category_" default="diff"/> <!-- rival velocity category (diff/api)-->
     
 
     <group ns="rival" if="$(arg rival_active)">
@@ -27,7 +25,7 @@
             <arg name="print_world_active" value="$(arg print_world_active)"/>
         </include>
 
-        <node name="vive_rival" pkg="vive" type="vive_rival" output="screen">
+        <node name="rival" pkg="vive" type="rival" output="screen">
             <param name="tracker" type="string" value="$(arg rival_tracker)"/>  <!-- need to check -->
             <param name="map" type="string" value="survive_map"/>  <!-- need to check -->
             <param name="world" type="string" value="survive_world"/>  <!-- need to check -->
@@ -46,7 +44,7 @@
             <param name="print_rival_active" type="bool" value="$(arg print_rival_active)"/>
             <param name="pub_debug_active" type="bool" value="$(arg pub_debug_active_)"/>
             <param name="freq" type="int" value="$(arg freq_)"/>
-            <param name="unit" type="int" value="$(arg unit_)"/>
+            <param name="unit" type="double" value="$(arg unit_)"/>
         </node>
     </group>
 

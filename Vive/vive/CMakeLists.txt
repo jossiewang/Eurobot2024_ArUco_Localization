@@ -182,26 +182,11 @@ ${PROJECT_SOURCE_DIR}/../libsurvive/bin/libsurvive.so
 add_executable(api_simple_test src/api_simple_test.cpp)
 target_link_libraries(api_simple_test ${LIBS}  ${catkin_LIBRARIES} )
 
-add_executable(vive_calibrate src/vive_calibrate.cpp)
-target_link_libraries(vive_calibrate ${LIBS}  ${catkin_LIBRARIES} )
-
-add_executable(vive_calibrate2 src/vive_calibrate2.cpp)
-target_link_libraries(vive_calibrate2 ${LIBS}  ${catkin_LIBRARIES} )
-
-add_executable(vive_calibrate_contrl src/vive_calibrate_contrl.cpp)
-target_link_libraries(vive_calibrate_contrl ${LIBS}  ${catkin_LIBRARIES} )
-
 add_executable(fake_ekf src/fake_ekf.cpp)
 target_link_libraries(fake_ekf ${LIBS}  ${catkin_LIBRARIES} )
 
-add_executable(vive_world src/vive_world.cpp)
-target_link_libraries(vive_world ${LIBS}  ${catkin_LIBRARIES} )
-
 add_executable(vive_trackerpose src/vive_trackerpose.cpp)
 target_link_libraries(vive_trackerpose ${LIBS}  ${catkin_LIBRARIES} )
-
-add_executable(vive_rival src/vive_rival.cpp)
-target_link_libraries(vive_rival ${LIBS}  ${catkin_LIBRARIES} )
 
 add_executable(rival src/rival.cpp)
 target_link_libraries(rival ${LIBS}  ${catkin_LIBRARIES} )
@@ -214,6 +199,9 @@ target_link_libraries(calibrate ${LIBS}  ${catkin_LIBRARIES} )
 
 add_executable(calibrate2 src/calibrate2.cpp)
 target_link_libraries(calibrate2 ${LIBS}  ${catkin_LIBRARIES} )
+
+add_executable(calibrate2_contrl src/calibrate2_contrl.cpp)
+target_link_libraries(calibrate2_contrl ${LIBS}  ${catkin_LIBRARIES} )
 
 #############
 ## Install ##

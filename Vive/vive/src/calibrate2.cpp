@@ -29,7 +29,7 @@ class Robot {
 public:
     Robot(ros::NodeHandle nh_g, ros::NodeHandle nh_l);
     void lookup_transform_from_map();
-    void print_pose(int unit_);
+    void print_pose(double unit_);
     bool in_boundry(double x, double y);
     VIVEPOSE filter(VIVEPOSE raw_);
     VIVEPOSE filter2(VIVEPOSE raw_);
@@ -126,21 +126,21 @@ void Robot::lookup_transform_from_map() {
     pose_from_map_avg_filter = filter2(pose_from_map_avg);
     in_boundry_ = in_boundry(pose_from_map_avg_filter.x, pose_from_map_avg_filter.y);
 }
-void Robot::print_pose(int unit_) {
+void Robot::print_pose(double unit_) {
     if (has_tf) {
         std::cout << robot_name << "/vive_pose: " << map_frame << "->" << tracker_frame << " (x y z W X Y Z) ";
-        std::cout << std::setw(10) << std::setprecision(6) << pose_from_map_filter.x * unit_ << " ";
-        std::cout << std::setw(10) << std::setprecision(6) << pose_from_map_filter.y * unit_ << " ";
-        std::cout << std::setw(10) << std::setprecision(6) << pose_from_map_filter.z * unit_ << " ";
+        std::cout << std::setw(10) << std::setprecision(6) << pose_from_map_filter.x / unit_ << " ";
+        std::cout << std::setw(10) << std::setprecision(6) << pose_from_map_filter.y / unit_ << " ";
+        std::cout << std::setw(10) << std::setprecision(6) << pose_from_map_filter.z / unit_ << " ";
         std::cout << std::setw(10) << std::setprecision(4) << pose_from_map_filter.W << " ";
         std::cout << std::setw(10) << std::setprecision(4) << pose_from_map_filter.X << " ";
         std::cout << std::setw(10) << std::setprecision(4) << pose_from_map_filter.Y << " ";
         std::cout << std::setw(10) << std::setprecision(4) << pose_from_map_filter.Z << std::endl;
 
         std::cout << robot_name << "/vive_pose_before_rotate: " << map_frame << "->" << tracker_frame << " (x y z W X Y Z) ";
-        std::cout << std::setw(10) << std::setprecision(6) << pose_from_map_avg_filter.x * unit_ << " ";
-        std::cout << std::setw(10) << std::setprecision(6) << pose_from_map_avg_filter.y * unit_ << " ";
-        std::cout << std::setw(10) << std::setprecision(6) << pose_from_map_avg_filter.z * unit_ << " ";
+        std::cout << std::setw(10) << std::setprecision(6) << pose_from_map_avg_filter.x / unit_ << " ";
+        std::cout << std::setw(10) << std::setprecision(6) << pose_from_map_avg_filter.y / unit_ << " ";
+        std::cout << std::setw(10) << std::setprecision(6) << pose_from_map_avg_filter.z / unit_ << " ";
         std::cout << std::setw(10) << std::setprecision(4) << pose_from_map_avg_filter.W << " ";
         std::cout << std::setw(10) << std::setprecision(4) << pose_from_map_avg_filter.X << " ";
         std::cout << std::setw(10) << std::setprecision(4) << pose_from_map_avg_filter.Y << " ";
@@ -300,7 +300,7 @@ struct xy Robot::get_xy_before_rotate() {
 
 
 int freq = 20;
-int unit = 1;
+double unit = 1;
 std::string name_space;
 std::string node_name;
 std::string package_path;
@@ -355,8 +355,8 @@ bool run_srv_func(std_srvs::SetBool::Request& req, std_srvs::SetBool::Response& 
 void step_callback(const std_msgs::Int64& msg) {
     step = msg.data;
 }
-void print_calipose(CALIPOSE p_) {
-    std::cout << "calibrating(x y): (" << p_.pt.x << " " << p_.pt.y << ")" << std::endl;
+void print_calipose(CALIPOSE p_, double unit_) {
+    std::cout << "calibrating(x y): (" << p_.pt.x/unit_ << " " << p_.pt.y/unit_ << ")" << std::endl;
 }
 void dump_params(ros::NodeHandle nh_) {
     nh_.setParam("P1/pos_get__x", p1.pg.x);
@@ -425,19 +425,19 @@ int main(int argc, char** argv) {
             robot.print_pose(unit);
             switch (step) {
             case 1:
-                print_calipose(p1);
+                print_calipose(p1, unit);
                 p1.pg = robot.get_xy_before_rotate();
                 break;
             case 2:
-                print_calipose(p2);
+                print_calipose(p2, unit);
                 p2.pg = robot.get_xy_before_rotate();
                 break;
             case 3:
-                print_calipose(p3);
+                print_calipose(p3, unit);
                 p3.pg = robot.get_xy_before_rotate();
                 break;
             case 4:
-                print_calipose(p4);
+                print_calipose(p4, unit);
                 p4.pg = robot.get_xy_before_rotate();
                 break;
             default:

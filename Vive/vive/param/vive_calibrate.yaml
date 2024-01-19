@@ -7,23 +7,23 @@ Blue:
   LH0_y: -0.04123338985324554
   LH0_z: -2.087849627124843
 P1:
-  pos_get__x: 2.6
-  pos_get__y: 1.6
+  pos_get__x: 1.7043000845248035
+  pos_get__y: 0.98950327763926
   pos_true_x: 2.5
   pos_true_y: 1.5
 P2:
-  pos_get__x: 0.6
-  pos_get__y: 1.6
+  pos_get__x: 1.7043018162413945
+  pos_get__y: 0.98950443388144
   pos_true_x: 0.5
   pos_true_y: 1.5
 P3:
-  pos_get__x: 0.6
-  pos_get__y: 0.6
+  pos_get__x: 1.7042967019706226
+  pos_get__y: 0.989512972414091
   pos_true_x: 0.5
   pos_true_y: 0.5
 P4:
-  pos_get__x: 2.6
-  pos_get__y: 0.6
+  pos_get__x: 1.7042959334589212
+  pos_get__y: 0.9895176353178998
   pos_true_x: 2.5
   pos_true_y: 0.5
 Yellow:

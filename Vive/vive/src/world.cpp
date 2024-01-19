@@ -219,7 +219,7 @@ std::string run_service_name;
 int num_LH = 1;
 // int num_ootx_done = 0;
 int freq;
-int unit;
+double unit;
 double max_distance_bt_maps;
 bool print = true;
 std::string side_ = "b";
