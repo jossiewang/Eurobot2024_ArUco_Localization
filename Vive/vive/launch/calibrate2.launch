@@ -1,8 +1,8 @@
 <launch>
     <arg name="frequency" default="100"/>  <!--the publishing freqency is this value divided by 5-->
-    <arg name="print_unit" default="0.01"/> <!--cm-->
-    <arg name="side_" default="b"/>
-    <arg name="tracker_" default="trackerD"/>
+    <arg name="print_unit" default="0.01"/>  <!--cm-->
+    <arg name="side_" default="b"/>  <!-- need to check  : 'b' or 'y' -->
+    <arg name="tracker_" default="trackerD"/>  <!-- need to check -->
     
     <node name="world" pkg="vive" type="world" output="screen">
         <rosparam file="$(find vive)/param/vive_calibrate.yaml" command="load" /> <!-- tf_to_map -->

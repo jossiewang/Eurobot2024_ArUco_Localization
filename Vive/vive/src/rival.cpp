@@ -46,8 +46,8 @@ public:
     void vel_callback(const geometry_msgs::Twist::ConstPtr& msg);
     void lookup_transform_from_map();
 
-    void publish_();
-    void publish_vive_pose(bool status, tf::Vector3 out_vel);
+    void publish_(double unit_);
+    void publish_vive_pose(bool status, tf::Vector3 out_vel, double unit_);
     void publish_tracker_vel(tf::Vector3 vel, ros::Publisher vel_pub);
     void print_pose(double unit_);
 
@@ -202,9 +202,9 @@ void Rival::lookup_transform_from_map() {
     now_pose.header.stamp = ros::Time::now();
 }
 
-void Rival::publish_(){
+void Rival::publish_(double unit_){
     // publish raw data of tracker velocity
-    publish_tracker_vel(api_vel.out_vel, vel_raw_pub);
+    publish_tracker_vel(api_vel.out_vel / unit_, vel_raw_pub);
     if(lowpass_active) api_vel = lowpass(api_vel.out_vel, api_vel.last_vel);
     if(max_limit_active) api_vel = max_vel_limit(api_vel.out_vel, api_vel.last_vel);
 
@@ -212,14 +212,14 @@ void Rival::publish_(){
     diff_vel.out_vel = tracker_diff();
     if(lowpass_active) diff_vel = lowpass(diff_vel.out_vel, diff_vel.last_vel);
     if(max_limit_active) diff_vel = max_vel_limit(diff_vel.out_vel, diff_vel.last_vel);
-    publish_tracker_vel(diff_vel.out_vel, vel_diff_pub);
+    publish_tracker_vel(diff_vel.out_vel / unit_, vel_diff_pub);
     
     // choose one velocity to publish vive_pose(api or diff)
     if (strcmp(pub_vel_category.c_str(), "diff") == 0){
-        publish_vive_pose(status,diff_vel.out_vel);
+        publish_vive_pose(status,diff_vel.out_vel, unit_);
     }
     else if (strcmp(pub_vel_category.c_str(), "api") == 0){
-        publish_vive_pose(status,api_vel.out_vel);
+        publish_vive_pose(status,api_vel.out_vel, unit_);
     }
 }
 
@@ -248,25 +248,25 @@ void Rival::publish_tracker_vel(tf::Vector3 vel, ros::Publisher vel_pub){
 
 }
 
-void Rival::publish_vive_pose(bool status, tf::Vector3 out_vel) {
+void Rival::publish_vive_pose(bool status, tf::Vector3 out_vel, double unit_) {
 
     if (has_tf && status) {
         pose.header.frame_id = map_frame;
         pose.header.frame_id = tracker_frame;
         pose.header.stamp = ros::Time::now();
-        pose.pose.pose.orientation.w = transform_from_map.getRotation().getW();
-        pose.pose.pose.orientation.x = transform_from_map.getRotation().getX();
-        pose.pose.pose.orientation.y = transform_from_map.getRotation().getY();
-        pose.pose.pose.orientation.z = transform_from_map.getRotation().getZ();
-        pose.pose.pose.position.x = transform_from_map.getOrigin().getX();
-        pose.pose.pose.position.y = transform_from_map.getOrigin().getY();
-        pose.pose.pose.position.z = transform_from_map.getOrigin().getZ();
-        pose.twist.twist.linear.x = abs(out_vel[0]) > tole ? out_vel[0] : 0.0;
-        pose.twist.twist.linear.y = abs(out_vel[1]) > tole ? out_vel[1] : 0.0;
-        pose.twist.twist.linear.z = abs(out_vel[2]) > tole ? out_vel[2] : 0.0;
+        pose.pose.pose.orientation.w = transform_from_map.getRotation().getW() / unit_;
+        pose.pose.pose.orientation.x = transform_from_map.getRotation().getX() / unit_;
+        pose.pose.pose.orientation.y = transform_from_map.getRotation().getY() / unit_;
+        pose.pose.pose.orientation.z = transform_from_map.getRotation().getZ() / unit_;
+        pose.pose.pose.position.x = transform_from_map.getOrigin().getX() / unit_;
+        pose.pose.pose.position.y = transform_from_map.getOrigin().getY() / unit_;
+        pose.pose.pose.position.z = transform_from_map.getOrigin().getZ() / unit_;
+        pose.twist.twist.linear.x = abs(out_vel[0]) > tole ? out_vel[0]  / unit_: 0.0;
+        pose.twist.twist.linear.y = abs(out_vel[1]) > tole ? out_vel[1]  / unit_: 0.0;
+        pose.twist.twist.linear.z = abs(out_vel[2]) > tole ? out_vel[2]  / unit_: 0.0;
         pose.twist.twist.angular.x = 0;
         pose.twist.twist.angular.y = 0;
-        pose.twist.twist.angular.z = abs(in_rot[2]) > tole ? in_rot[2] : 0.0;
+        pose.twist.twist.angular.z = abs(in_rot[2]) > tole ? in_rot[2]  / unit_: 0.0;
     }
     else{
         ROS_WARN_STREAM("tracker failure!!\nchange to lidar info"); 
@@ -289,11 +289,12 @@ void Rival::print_pose(double unit_) {
     poseV.Z = transform_from_map.getRotation().getZ() / unit_;
 
     if (has_tf & print_active && print_active) {
+        printf("unit: %.3f meter\n", unit_);
         printf("%s / trackerpose: %s -> %s (x y z)\n", robot_name.c_str(), map_frame.c_str(), tracker_frame.c_str());
         printf("%6.3f %6.3f %6.3f \n", poseV.x, poseV.y, poseV.z);
         printf("%s tracker vel (x y)\n",robot_name.c_str());
         printf("%4.2f, %4.2f\n", pose.twist.twist.linear.x, pose.twist.twist.linear.y);
-        printf("%s tracker rota (z)\n",robot_name.c_str());
+        printf("%s tracker rota_vel (z)\n",robot_name.c_str());
         printf("%4.2f\n", pose.twist.twist.angular.z);
 
 
@@ -357,7 +358,7 @@ int main(int argc, char** argv) {
 
             rival.trans_vel();
             rival.lookup_transform_from_map();
-            rival.publish_();
+            rival.publish_(unit);
             rival.print_pose(unit);
 
         }

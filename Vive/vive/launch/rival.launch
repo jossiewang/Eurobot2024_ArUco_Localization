@@ -1,6 +1,6 @@
 <launch>
     <arg name="rival_active" default="true"/>
-    <arg name="rival_tracker" default="trackerD"/>
+    <arg name="rival_tracker" default="trackerD"/>  <!-- need to check -->
     <arg name="lowpass_active_" default="true"/>
     <arg name="max_vel_active_" default="false"/>
     <arg name="alpha_" default="0.05"/>
@@ -10,7 +10,7 @@
     <arg name="freq_" default="20"/>
     <arg name="print_freq_" default="0.5"/>
     <arg name="unit_" default="0.01"/>
-    <arg name="side" default="b"/>
+    <arg name="side" default="b"/>  <!-- need to check  : 'b' or 'y' -->
     <arg name="print_world_active" default="false"/> <!-- world -->
     <arg name="print_rival_active" default="true"/> <!-- rival -->
     <arg name="pub_debug_active_" default="false"/> <!-- rival raw/diff velocity data pub -->

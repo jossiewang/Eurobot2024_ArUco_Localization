@@ -1,7 +1,13 @@
 # Eurobot-Localization/Vive
 > Vive workspace for Eurobot
 
-> Contributors: Angus and YuShan
+> Contributors: Angus and YuShan and modified by weifu-yee
+
+# Process
+1. `calibrate.launch`
+2. `calibrate2.launch` and `calibrate2_control`
+3. `rival.launch`
+
 
 ## Install
 ```bash=1
@@ -29,73 +35,54 @@ catkin_make -DCATKIN_WHITELIST_PACKAGES="vive"
 ```
 
 ## Calibration
-### Getting LH->map
-- Set up one or two lighthouses.
-- Check dump path in `vive_calibrate.cpp`, line 278. Remember `catkin_make` if the code is modified.
-- Open `vive_calibrate.launch`. Check and modify value of params: `calibrate_tracker` `num_LH``side`.
+### Getting LH->map (calibrate)
+- Open `vive_calibrate.launch`. Check and modify value of params: `num_LH` `calibrate_tracker` `side`.
 - Put the tracker on the playground. 
   - Position: (1.5, 1.0) (the center of the playground), and 
   - Orientation: LED facing right shorter side of the playground(the line x=3). 
 - Launch. 
-```bash=1
-roslaunch vive vive_calibrate.launch
-```
+  ```bash=1
+  $ roslaunch vive calibrate.launch
+  ```
 - Wait untill the numbers printed to be stable. 
   - If you don't want to replace the last calibration:
-  ```bash=1
-  # open another terminal
-  rosparam set /vive_calibrate/dump_blue false
-  rosparam set /vive_calibrate/dump_green false
-  ```
+    ```bash=1
+    # open another terminal
+    $ rosparam set /calibrate/dump_blue false
+    $ rosparam set /calibrate/dump_yellow false
+    ```
 - Press `ctrl`+`C` to stop the program. `vive/param/vive_calibrate.yaml` will be replaced by new calibration.
 - NOTE: there are two cases:
-  - 1.Only a LH, then you need only calibrate one side(blue or yellow).
-  - 2.Use two LHs, then you need to calibrate blue one time and yellow another time. Remember modify the `side` before change the side you want calibrate.
-### Calibration of map_origin rotation
-- Set up three lighthouses.
-- Check dump path in `vive_calibrate2.cpp`, line 380. Remember `catkin_make` if the code is modified.
+  - 1.Only **one** LH, then you need only calibrate one side(blue or yellow).
+  - 2.Use **two** LHs, then you need to calibrate blue one time and yellow another time. Remember modify the `side` before change the side you want calibrate.
+### Calibration of map_origin rotation (calibrate2)
 - Open `vive_calibrate2.launch`, check and modify args: `side_` `tracker_`.
 - Put the tracker on the playground.
 - Launch.
-```bash=1
-roslaunch vive vive_calibrate2.launch
-# open another terminal
-rosrun vive vive_calibrate_contrl
-```
-- There are four points; the position of the points are set in `vive_calibrate.yaml` -> `pos_true_xandy`.
-- Input numbers with `vive_calibrate_contrl`, and put tracker on the position `vive_calibrate2` gives you.
-- When finishing one point, **before moving tracker**, input another number in `vive_calibrate_contrl`.
+  ```bash=1
+  $ roslaunch vive calibrate2.launch
+  # open another terminal
+  $ rosrun vive calibrate_contrl
+  ```
+- There are four points; the position of the points are set in `vive_calibrate.yaml` -> `pos_true_x` and `pos_true_y`.
+- Input numbers with `vive_calibrate_contrl`, and put tracker on the position `calibrate2` gives you.
+- When finishing one point, **before moving tracker**, input another number in `calibrate_contrl`.
 - Then move the tracker to next posistion. 
-- If all four points are finished, close `vive_calibrate2` (by input `9` or press `ctrl`+`C`). The calibration data would be written into `vive_calibrate.yaml`.
+- If all four points are finished, close `calibrate2` (by input `9` in calibrate_control or press `ctrl`+`C`). The calibration data would be written into `vive_calibrate.yaml`.
 - Finished.
 ## Run
-### robot
-- Open `vive_trackerpose.launch`, check and modify args: 
-  - `robot1_active` / `robot2_active` 
-  - `robot1_tracker` / `robot2_tracker`
-  - `side` : 'g' or 'b'. Note: We didn't use this string param in EUROBOT2023, but an int param `/side`. 1 green, 0 blue. This param is set by other.
-  - `ekf_` : running with ekf or not. If true, the program would compare the position of vive and ekf.
-  - `print_world` : Print information of `vive_world` or not. Note: SimpleApi logger in `vive_world` would always print information.
-- Launch.
-```bash=1
-rosparam set /side b # blue, or
-rosparam set /side y # yellow
-roslaunch vive vive_trackerpose.launch
-```
 
 ### rival
-- Open `vive_rival_1.launch`/`vive_rival_2.launch`, check and modify args: 
-  - `rival1_active` / `rival2_active` 
-  - `rival1_tracker` / `rival2_tracker`
-  - `side` : 'g' or 'b'. Note: We didn't use this string param in EUROBOT2023, but an int param `/side`. 1 green, 0 blue. This param is set by other.
+- Open `rival.launch`, check and modify args: 
+  - `rival_active` 
+  - `rival_tracker`
+  - `side` : 'b' or 'y'.
   - `lowpass_active_` : to determined the lowpass filter active. 
 - Launch.
-```bash=1
-rosparam set /side b # blue, or
-rosparam set /side y # yellow
-roslaunch vive vive_rival_1.launch # or
-roslaunch vive vive_rival_2.launch
-```
+  ```bash=1
+  # roslaunch vive vive_rival.launch
+  ```
+- Now, the rostopic `/rival/odom/tracker` will be published.
 ## config file
 - The LH object will be build in the `config.json`
 ```
