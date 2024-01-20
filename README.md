@@ -55,11 +55,11 @@ roslaunch local_filter local_filter.launch
 ```
 - Run without rosserial but imu firmware
 ```bash=1
-roslaunch local_filter local_filter_no_comm.launch
+roslaunch local_filter local_filter_no_comm.launch # no such file now!
 ```
 - Run without rosserial and imu firmware
 ```bash=1
-roslaunch local_filter local_filter_no_firmware.launch
+roslaunch local_filter local_filter_no_firmware.launch # no such file now!
 ```
 
 ### Global filter
@@ -68,7 +68,7 @@ roslaunch local_filter local_filter_no_firmware.launch
 - Place global filter in eurobot_localization
 - Run with only triangle localization
 ```bash=1
-roslaunch lidar_localization lidar_localization_2023.launch
+roslaunch lidar_localization lidar_localization_2023.launch # no such file now!
 ```
 - Run with only lidar driver and triangle localization
 ```bash=1
@@ -80,7 +80,7 @@ roslaunch eurobot_localization global_ekf.launch
 ```
 - Run global filter without lidar driver
 ```bash=1
-roslaunch eurobot_localization global_ekf_without_lidar.launch
+roslaunch eurobot_localization global_ekf_without_lidar.launch # no such file now!
 ```
 
 ### Together
