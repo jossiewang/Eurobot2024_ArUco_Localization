@@ -15,6 +15,7 @@
 #include <std_msgs/Header.h>
 
 bool status = true; //tracker status 
+bool pub_debug_active = true;
 
 typedef struct vivePose {
 
@@ -292,19 +293,17 @@ void Rival::print_pose(double unit_) {
         printf("unit: %.3f meter\n", unit_);
         printf("%s / trackerpose: %s -> %s (x y z)\n", robot_name.c_str(), map_frame.c_str(), tracker_frame.c_str());
         printf("%6.3f %6.3f %6.3f \n", poseV.x, poseV.y, poseV.z);
+        if(!pub_debug_active)   return;
         printf("%s tracker vel (x y)\n",robot_name.c_str());
         printf("%4.2f, %4.2f\n", pose.twist.twist.linear.x, pose.twist.twist.linear.y);
         printf("%s tracker rota_vel (z)\n",robot_name.c_str());
         printf("%4.2f\n", pose.twist.twist.angular.z);
-
-
     }
     else ROS_INFO_THROTTLE(print_freq, "%s / %s -> %s do not have tf.\n", robot_name.c_str(), map_frame.c_str(), tracker_frame.c_str());
 }
 
 int freq = 20;
 double unit = 1;
-bool pub_debug_active = true;
 std::string node_name;
 bool world_is_running = true;
 
