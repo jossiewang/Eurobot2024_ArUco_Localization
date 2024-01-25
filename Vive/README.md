@@ -29,9 +29,6 @@ chmod 777 vive_install.sh
 ```bash=1
 cd ~/catkin_workspace
 catkin_make
-# if error occurs, compile "obstacle_detector" first as follow:
-catkin_make -DCATKIN_WHITELIST_PACKAGES="obstacle_detector"
-catkin_make -DCATKIN_WHITELIST_PACKAGES="vive"
 ```
 
 ## Calibration
