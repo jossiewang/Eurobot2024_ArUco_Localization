@@ -1,7 +1,7 @@
 <launch>
     
-    <arg name="robot_name" default="robot1"/>
-    <arg name="robot_name_slash" default="robot1/"/>
+    <arg name="robot_name" default="rival"/>
+    <arg name="robot_name_slash" default="rival/"/>
     <arg name="active_rival_center" default="1"/>
 
     <group ns="$(arg robot_name)" if="$(eval arg('active_rival_center')==1)">

@@ -17,7 +17,7 @@
     <arg name="pub_vel_category_" default="diff"/> <!-- rival velocity category (diff/api)-->
     
 
-    <group ns="rival" if="$(arg rival_active)">
+    <group ns="rival_vive" if="$(arg rival_active)">
         <include file="$(find vive)/launch/world.launch">
             <arg name="survive_active" value="$(arg rival_active)"/>
             <arg name="survive_tracker" value="$(arg rival_tracker)"/>
