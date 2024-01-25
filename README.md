@@ -15,7 +15,10 @@
              ├── local_filter
              ├── odometry
              ├── simulation
-             ├── vive
+             ├── rival
+             ├── Vive
+             ├   ├── vive
+             ├   └── libsurvive
              ├── firmware
              ├   └── config
              ├   ├   ├── lidar_run.yaml
