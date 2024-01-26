@@ -25,6 +25,7 @@ source ~/.bashrc
              ├── .YDLidar-SDK
              ├── docker
              ├── eurobot_localization
+             ├── rival_localization
              ├── lidar
              │   ├── lidar_localization
              │   └── ydlidar_ros_driver
