@@ -1,0 +1,47 @@
+LH0_serial_number: LHB-400B1A3E
+LH1_serial_number: LHB-D4EEE18
+
+
+# LH0_x: 0.0
+# LH0_y: -0.1935
+# LH0_z: 0.120
+# LH0_W: 0.653
+# LH0_X: -0.653
+# LH0_Y: 0.271
+# LH0_Z: 0.271
+# LH0_yaw: 0.785
+# LH0_pitch: 0
+# LH0_roll: 0
+LH0_W: 0.654342
+LH0_X: -0.650614
+LH0_Y: 0.265712
+LH0_Z: 0.27917
+LH0_x: 0.080993
+LH0_y: -0.199684
+LH0_z: 0.238763
+LH1_W: 0.277101
+LH1_X: -0.275982
+LH1_Y: 0.653308
+LH1_Z: 0.648258
+LH1_x: 2.344588
+LH1_y: -0.204202
+LH1_z: -1.786158
+# LH1_x: -2.121
+# LH1_y: -0.1935
+# LH1_z: -2.001
+# LH1_W: 0.653
+# LH1_X: -0.653
+# LH1_Y: -0.271
+# LH1_Z: -0.271
+# LH1_yaw: 2.356
+# LH1_pitch: 0
+# LH1_roll: 0
+
+tracker_abs_x: -1.5
+tracker_abs_y: 0.7
+tracker_abs_z: 0.0
+tracker_abs_W: 0.0
+tracker_abs_X: 1.0
+tracker_abs_Y: 0.0
+tracker_abs_Z: 0.0
+# rosparam load ~/Eurobot2023_ws/src/vive/param/api_simple_test.yaml 
