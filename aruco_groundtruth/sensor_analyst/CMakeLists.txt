@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -135,6 +136,10 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/sensor_analyst_node.cpp)
+add_executable(lidar_filter_node src/lidar_dist_filter.cpp)
+target_link_libraries(lidar_filter_node ${catkin_LIBRARIES})
+# add_executable(acc_g2f_node src/acc_global2foot.cpp)
+# target_link_libraries(acc_g2f_node ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

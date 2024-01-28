@@ -1,0 +1,14 @@
+<launch>
+
+	<arg name="angle_ub" default="-150"/>
+	<arg name="angle_lb" default="-160"/>
+
+    <!-- <include file="$(find ydlidar_ros_driver)/launch/G6_G7.launch" /> -->
+
+    <node pkg="sensor_analyst" type="lidar_filter_node" name="lidar_dist_filter">
+        <param name="angle_ub" value="$(arg angle_ub)"/>
+        <param name="angle_lb" value="$(arg angle_lb)"/>
+        <!-- <remap from="scan" to="scan"/> -->
+    </node>
+
+</launch>
