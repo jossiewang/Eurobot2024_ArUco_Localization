@@ -33,7 +33,7 @@ def plot_csv_data(csv_file):
 
 if __name__ == '__main__':
     try:
-        csv_file_path = '/home/jossiewang/eurobot2024_ws/src/aruco_groundtruth/matplot_data.csv'
+        csv_file_path = '/home/jossiewang/eurobot2024_ws/src/Eurobot-2024-Localization/aruco_groundtruth/sensor_analyst/data/matplot_data.csv'
         plot_csv_data(csv_file_path)
 
     except rospy.ROSInterruptException:
