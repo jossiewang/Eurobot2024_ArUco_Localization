@@ -20,6 +20,6 @@
         <param name="corner_refinement"  value="$(arg corner_refinement)" />
     </node>
 
-    <node pkg="tf" type="static_transform_publisher" name="camera_link_pub" args="0 0 1 0 0 0 1 world camera_link 100"/>
+    <!--<node pkg="tf" type="static_transform_publisher" name="camera_link_pub" args="0 0 1 0 0 0 1 world camera_link 100"/>-->
 </launch>
 

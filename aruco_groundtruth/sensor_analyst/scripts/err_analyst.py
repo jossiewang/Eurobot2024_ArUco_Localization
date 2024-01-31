@@ -10,23 +10,23 @@ def plot_csv_data(csv_file):
     # Extract data from DataFrame
     timestamp = df['t']
     GPS_x = df['GPS_x']
-    odom_x = df['odometry_x']
+    GT_x = df['odometry_x']
 
     # Plotting
     plt.figure(figsize=(10, 6))
 
     plt.plot(timestamp, GPS_x, label='pos_x')
-    plt.plot(timestamp, odom_x, label='odom_x')
-    plt.plot(timestamp, odom_x-GPS_x, label='err')
+    plt.plot(timestamp, GT_x, label='GT_x')
+    plt.plot(timestamp, GT_x-GPS_x, label='err')
 
     plt.xlabel('Timestamp')
-    plt.ylabel('Data')
-    plt.title('Graph of Data over Time')
+    plt.ylabel('pos_x')
+    plt.title('err-timestamp')
     plt.legend()
     plt.grid(True)
 
     print("std of GPS_x:", numpy.std(GPS_x))
-    print("mean squared error:", (numpy.square(odom_x - GPS_x)).mean())
+    print("mean squared error:", (numpy.square(GT_x - GPS_x)).mean())
 
     # Show the plot
     plt.show()
