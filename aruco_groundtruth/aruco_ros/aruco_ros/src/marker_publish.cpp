@@ -50,7 +50,7 @@ class ArucoMarkerPublisher
 {
 private:
   // ArUco stuff
-  aruco::MarkerDetector mDetector_;
+  aruco::MarkerDetector mDetector_{"ARUCO_MIP_16h3", 1};
   aruco::CameraParameters camParam_;
   std::vector<aruco::Marker> markers_;
 

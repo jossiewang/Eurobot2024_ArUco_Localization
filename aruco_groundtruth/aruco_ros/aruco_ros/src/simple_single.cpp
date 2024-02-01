@@ -57,6 +57,7 @@ private:
   tf::StampedTransform rightToLeft;
   bool useRectifiedImages;
   aruco::MarkerDetector mDetector;
+  // aruco::MarkerDetector mDetector{"ARUCO_MIP_16h3", 1};
   std::vector<aruco::Marker> markers;
   ros::Subscriber cam_info_sub;
   bool cam_info_received;
