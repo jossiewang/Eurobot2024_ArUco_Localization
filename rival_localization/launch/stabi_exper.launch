@@ -1,9 +1,0 @@
-<launch>
-    <arg name="robot_name" default="rival_stabi_exper"/>
-
-    <group ns="$(arg robot_name)"/>
-        <include file="$(find vive)/launch/rival.launch"/>
-        <node name="experiment" pkg="rival_localization" type="experiment" output="screen"/>
-    </group>
-
-</launch>
