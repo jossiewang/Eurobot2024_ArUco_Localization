@@ -10,11 +10,12 @@ void markerCallback(const aruco_msgs::MarkerArray::ConstPtr& markers) {
 
     for (const auto& marker : markers->markers) {
         // Assuming each marker has a unique ID
-        std::string marker_frame_id = "M" + std::to_string(marker.id);
+        std::string marker_frame_id = "M2" + std::to_string(marker.id);
 
         // Create a transform from camera_link to the marker
         geometry_msgs::TransformStamped transformStamped;
         transformStamped.header.stamp = ros::Time::now();
+        // transformStamped.header.stamp = marker.header.stamp;
         transformStamped.header.frame_id = "camera_link";
         transformStamped.child_frame_id = marker_frame_id;
         transformStamped.transform.translation.x = marker.pose.pose.position.x;
