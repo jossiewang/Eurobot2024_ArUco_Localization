@@ -1,5 +1,0 @@
-<launch>
-
-<node pkg="tf2_ros" type="static_transform_publisher" name="camera_link_pub" args="0 0 0 0 0 0 1 world camera_link" />
-
-</launch>

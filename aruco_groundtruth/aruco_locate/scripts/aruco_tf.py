@@ -15,16 +15,6 @@ class ArucoTFNode:
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer)
 
-        # rate = rospy.Rate(10)
-        # while not rospy.is_shutdown():
-        #     # get four maps
-        #     tf_4cam2map = self.lookup_four_maps()
-        #     # get the average map
-        #     tf_cam2map_avg = self.calculate_average_transform(tf_4cam2map)
-        #     print(tf_4cam2map)
-        #     self.tf_broadcaster = tf2_ros.TransformBroadcaster()
-        #     self.tf_broadcaster.sendTransform(tf_cam2map_avg)
-
         rate = rospy.Rate(10)
         rate.sleep() # some approach to wait forr transform
         # get four maps
@@ -32,8 +22,22 @@ class ArucoTFNode:
         # get the average map
         tf_cam2map_avg = self.calculate_average_transform(tf_4cam2map)
         print(tf_cam2map_avg)
-        self.tf_broadcaster = tf2_ros.TransformBroadcaster()
+        self.tf_broadcaster = tf2_ros.StaticTransformBroadcaster()
+        # self.tf_broadcaster.sendTransform(tf_cam2map_avg)
+
+        tf_cam2map_avg.header.frame_id = "camera_link"
+        tf_cam2map_avg.child_frame_id = "map_avg"
+        tf_cam2map_avg.transform.translation.x = 1
+        tf_cam2map_avg.transform.translation.y = 2
+        tf_cam2map_avg.transform.translation.z = 3
+        tf_cam2map_avg.transform.rotation.x = 0
+        tf_cam2map_avg.transform.rotation.y = 0
+        tf_cam2map_avg.transform.rotation.z = 0
+        tf_cam2map_avg.transform.rotation.w = 1
+
         self.tf_broadcaster.sendTransform(tf_cam2map_avg)
+
+
     
     def lookup_four_maps(self):
         tf_cam2markers = []
@@ -62,6 +66,7 @@ class ArucoTFNode:
                                             sum(tf.transform.translation.z for tf in transforms) / len(transforms)]
 
         # Calculate average rotation using quaternion averaging
+        print(transforms[0].transform.rotation.x)
         # q1 = numpy.quaternion(transforms[0].transform.rotation.x, transforms[0].transform.rotation.y, transforms[0].transform.rotation.z, transforms[0].transform.rotation.w)
         # q2 = numpy.quaternion(transforms[-1].transform.rotation.x, transforms[-1].transform.rotation.y, transforms[-1].transform.rotation.z, transforms[-1].transform.rotation.w)
         # average_rotation = quaternion_slerp(q1, q2, 0.5)
@@ -72,7 +77,7 @@ class ArucoTFNode:
 
         return TransformStamped(
             header=transforms[0].header,
-            child_frame_id=transforms[0].child_frame_id,
+            child_frame_id="map_avg",
             transform=avg_transform.transform,
         )
 
