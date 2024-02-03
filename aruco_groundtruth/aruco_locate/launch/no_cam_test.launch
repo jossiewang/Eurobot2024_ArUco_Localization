@@ -1,0 +1,21 @@
+<launch>
+
+<!-- <param name="/use_sim_time" value="true"/> -->
+
+<!-- <node pkg="tf2_ros" type="static_transform_publisher" name="camera_link_pub" args="0 0 0 0 0 0 1 world camera_link" /> -->
+<!-- sim camera to map -->
+<node pkg="tf2_ros" type="static_transform_publisher" name="M20_pub" args="0.75 -0.5 2 0 0 0 1 camera_link M20" />
+<node pkg="tf2_ros" type="static_transform_publisher" name="M21_pub" args="-0.75 -0.5 2 0 0 0 1 camera_link M21" />
+<node pkg="tf2_ros" type="static_transform_publisher" name="M22_pub" args="0.75 0.5 2 0 0 0 1 camera_link M22" />
+<node pkg="tf2_ros" type="static_transform_publisher" name="M23_pub" args="-0.75 0.5 2 0 0 0 1 camera_link M23" />
+<!-- define map to each markers -->
+<node pkg="tf2_ros" type="static_transform_publisher" name="map_20_def" args="0.75 1.5 0 0 0 0 1 M20 map_20" />
+<node pkg="tf2_ros" type="static_transform_publisher" name="map_21_def" args="2.25 1.5 0 0 0 0 1 M21 map_21" />
+<node pkg="tf2_ros" type="static_transform_publisher" name="map_22_def" args="0.75 0.5 0 0 0 0 1 M22 map_22" />
+<node pkg="tf2_ros" type="static_transform_publisher" name="map_23_def" args="2.25 0.5 0 0 0 0 1 M23 map_23" />
+
+<!-- <node pkg="aruco_locate" type="aruco_tf.py" name="aruco_tf_node" output="screen" /> -->
+<node pkg="aruco_locate" type="aruco_tf_node" name="aruco_tf_node" output="screen" />
+<node pkg="aruco_locate" type="aruco_locate_node" name="aruco_locate_node" output="screen" />
+
+</launch>

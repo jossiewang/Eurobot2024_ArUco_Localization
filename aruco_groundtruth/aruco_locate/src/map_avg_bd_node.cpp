@@ -2,14 +2,14 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <geometry_msgs/TransformStamped.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+// #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <numeric>
 
 int main(int argc, char** argv) {
     try {
-        ros::init(argc, argv, "aruco_tf_node");
+        ros::init(argc, argv, "map_avg_bd_node");
 
         //test listener --> succeed
         ros::NodeHandle node;

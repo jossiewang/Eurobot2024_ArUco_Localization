@@ -1,6 +1,0 @@
-<launch>
-
-    <node pkg="vive" type="api_simple_test" name="api_simple_test" output="screen">
-        <rosparam file="$(find vive)/param/api_simple_test.yaml" command="load" />
-    </node>
-</launch>
