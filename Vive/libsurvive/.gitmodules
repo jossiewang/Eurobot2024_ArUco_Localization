@@ -1,3 +1,0 @@
-[submodule "libs/cnkalman"]
-	path = "libs/cnkalman"
-	url = "https://github.com/cntools/cnkalman.git"
