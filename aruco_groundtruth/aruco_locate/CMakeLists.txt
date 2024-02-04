@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   roscpp
   rospy
+  # tf2
   tf2_ros
   aruco
   aruco_msgs
@@ -106,7 +107,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
- INCLUDE_DIRS include
+#  INCLUDE_DIRS include
 #  LIBRARIES aruco_locate
  CATKIN_DEPENDS geometry_msgs roscpp rospy tf2_ros aruco_msgs aruco
 #  DEPENDS system_lib

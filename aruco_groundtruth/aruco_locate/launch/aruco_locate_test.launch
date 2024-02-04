@@ -1,0 +1,11 @@
+<launch>
+
+<!-- sim camera to map -->
+<node pkg="tf2_ros" type="static_transform_publisher" name="M20_pub" args="1.4 0.4 0 0 0 0 1 map_avg M27" />
+<node pkg="tf2_ros" type="static_transform_publisher" name="M21_pub" args="1.45 0.42886 0 0 0 0 1 map_avg M28" />
+
+<!-- <node pkg="aruco_locate" type="aruco_tf.py" name="aruco_tf_node" output="screen" /> -->
+<!-- <node pkg="aruco_locate" type="aruco_tf_node" name="aruco_tf_node" output="screen" /> -->
+<node pkg="aruco_locate" type="aruco_locate_node" name="aruco_locate_node" output="screen" />
+
+</launch>
