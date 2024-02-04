@@ -21,8 +21,10 @@ void markerCallback(const aruco_msgs::MarkerArray::ConstPtr& markers) {
         transformStamped.transform.translation.x = marker.pose.pose.position.x;
         transformStamped.transform.translation.y = marker.pose.pose.position.y;
         transformStamped.transform.translation.z = marker.pose.pose.position.z;
-        transformStamped.transform.rotation = marker.pose.pose.orientation;
-
+        transformStamped.transform.rotation.x = 0;
+        transformStamped.transform.rotation.y = 0;
+        transformStamped.transform.rotation.z = 0;
+        transformStamped.transform.rotation.w = 1;
         // Broadcast the transform
         br.sendTransform(transformStamped);
     }
