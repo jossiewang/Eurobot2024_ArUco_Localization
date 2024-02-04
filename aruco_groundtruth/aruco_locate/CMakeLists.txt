@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   tf2_ros
+  aruco
+  aruco_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -104,9 +106,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+ INCLUDE_DIRS include
 #  LIBRARIES aruco_locate
-#  CATKIN_DEPENDS geometry_msgs roscpp rospy tf2_geometry tf2_ros
+ CATKIN_DEPENDS geometry_msgs roscpp rospy tf2_ros aruco_msgs aruco
 #  DEPENDS system_lib
 )
 
@@ -117,7 +119,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -145,7 +147,14 @@ include_directories(
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_executable(markers_bd_node src/markers_bd_node.cpp)
+target_link_libraries(markers_bd_node ${catkin_LIBRARIES})
 
+add_executable(map_avg_bd_node src/map_avg_bd_node.cpp)
+target_link_libraries(map_avg_bd_node ${catkin_LIBRARIES})
+
+add_executable(aruco_locate_node src/aruco_locate_node.cpp)
+target_link_libraries(aruco_locate_node ${catkin_LIBRARIES})
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
