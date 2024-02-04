@@ -14,8 +14,8 @@ void markerCallback(const aruco_msgs::MarkerArray::ConstPtr& markers) {
 
         // Create a transform from camera_link to the marker
         geometry_msgs::TransformStamped transformStamped;
-        transformStamped.header.stamp = ros::Time::now();
-        // transformStamped.header.stamp = marker.header.stamp;
+        // transformStamped.header.stamp = ros::Time::now();
+        transformStamped.header.stamp = marker.header.stamp;
         transformStamped.header.frame_id = "camera_link";
         transformStamped.child_frame_id = marker_frame_id;
         transformStamped.transform.translation.x = marker.pose.pose.position.x;
