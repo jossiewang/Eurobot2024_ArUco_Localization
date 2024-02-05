@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
                         tf_cam_map20 = tf_buffer.lookupTransform("camera_link", "map_20",ros::Time(0));
                         map_num++;
                         now_lookup.header.stamp = tf_cam_map20.header.stamp;
-                        ROS_INFO("stamp of map20: %d", tf_cam_map20.header.stamp.sec);
+                        // ROS_INFO("stamp of map20: %d", tf_cam_map20.header.stamp.sec);
                         // ROS_INFO("canTransform20, [%f, %f, %f]", tf_cam_map20.transform.translation.x, tf_cam_map20.transform.translation.y, tf_cam_map20.transform.translation.z);
                     }
                     else{
@@ -114,7 +114,7 @@ int main(int argc, char** argv) {
                 avg_transform.transform.rotation.y = 0;
                 avg_transform.transform.rotation.z = 0;
                 avg_transform.transform.rotation.w = 1;
-                ROS_INFO("transform_avg, [%f, %f, %f]", avg_transform.transform.translation.x, avg_transform.transform.translation.y, avg_transform.transform.translation.z);
+                // ROS_INFO("transform_avg, [%f, %f, %f]", avg_transform.transform.translation.x, avg_transform.transform.translation.y, avg_transform.transform.translation.z);
 
                 tf_broadcaster.sendTransform(avg_transform);
                 last_lookup.header.stamp = now_lookup.header.stamp;

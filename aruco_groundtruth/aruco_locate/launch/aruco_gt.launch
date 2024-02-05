@@ -12,6 +12,6 @@
 
 <node pkg="aruco_locate" type="markers_bd_node" name="markers_bd_node" output="screen" />
 <node pkg="aruco_locate" type="map_avg_bd_node" name="map_avg_bd_node" output="screen" />
-<node pkg="aruco_locate" type="aruco_locate_node" name="aruco_locate_node" output="screen" />
+<!-- <node pkg="aruco_locate" type="aruco_locate_node" name="aruco_locate_node" output="screen" /> -->
 
 </launch>
