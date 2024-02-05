@@ -1,0 +1,17 @@
+<launch>
+
+<include file="$(find usb_cam)/launch/usb_cam-test.launch"/>
+<node ns="usb_cam" pkg="image_proc" type="image_proc" name="image_proc" />
+<include file="$(find aruco_ros)/launch/marker_publisher.launch" />
+
+<!-- define map to each markers -->
+<node pkg="tf2_ros" type="static_transform_publisher" name="map_20_def" args="1.5 0.75 0 0 0 0 1 M20 map_20" />
+<node pkg="tf2_ros" type="static_transform_publisher" name="map_21_def" args="1.5 2.25 0 0 0 0 1 M21 map_21" />
+<node pkg="tf2_ros" type="static_transform_publisher" name="map_22_def" args="0.5 0.75 0 0 0 0 1 M22 map_22" />
+<node pkg="tf2_ros" type="static_transform_publisher" name="map_23_def" args="0.5 2.25 0 0 0 0 1 M23 map_23" />
+
+<node pkg="aruco_locate" type="markers_bd_node" name="markers_bd_node" output="screen" />
+<node pkg="aruco_locate" type="map_avg_bd_node" name="map_avg_bd_node" output="screen" />
+<node pkg="aruco_locate" type="aruco_locate_node" name="aruco_locate_node" output="screen" />
+
+</launch>

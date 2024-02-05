@@ -11,7 +11,6 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   roscpp
   rospy
-  # tf2
   tf2_ros
   aruco
   aruco_msgs

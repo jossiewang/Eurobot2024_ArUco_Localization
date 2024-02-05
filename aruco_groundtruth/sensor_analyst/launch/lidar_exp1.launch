@@ -1,5 +1,6 @@
 <launch>
 
+    <!-- LiDAR distance test -->
 	<arg name="angle_ub" default="-150"/>
 	<arg name="angle_lb" default="-160"/>
 
@@ -9,6 +10,12 @@
         <param name="angle_ub" value="$(arg angle_ub)"/>
         <param name="angle_lb" value="$(arg angle_lb)"/>
         <!-- <remap from="scan" to="scan"/> -->
+    </node>
+
+    <node pkg="sensor_analyst" type="chassis_control_node" name="chassis_control_node">
+        <param name="mode" value="1"/>
+        <param name="width" value="2.0"/>
+        <param name="speed_max" value="0.5"/>
     </node>
 
 </launch>

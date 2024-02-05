@@ -138,6 +138,8 @@ include_directories(
 # add_executable(${PROJECT_NAME}_node src/sensor_analyst_node.cpp)
 add_executable(lidar_filter_node src/lidar_dist_filter.cpp)
 target_link_libraries(lidar_filter_node ${catkin_LIBRARIES})
+add_executable(chassis_control_node src/chassis_control_node.cpp)
+target_link_libraries(chassis_control_node ${catkin_LIBRARIES})
 # add_executable(acc_g2f_node src/acc_global2foot.cpp)
 # target_link_libraries(acc_g2f_node ${catkin_LIBRARIES})
 

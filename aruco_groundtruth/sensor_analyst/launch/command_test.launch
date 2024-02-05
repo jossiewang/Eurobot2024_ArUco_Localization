@@ -1,0 +1,22 @@
+<!-- mode 1 -->
+<launch>
+  <node pkg="sensor_analyst" type="chassis_control_node" name="lidar_exp1_cmd">
+    <param name="mode" value="1"/>
+    <param name="speed_max" value="0.1"/>
+    <param name="total_distance" value="1"/>
+  </node>
+
+  <!-- <node pkg="sensor_analyst" type="chassis_control_node" name="imu_exp_cmd">
+    <param name="mode" value="2"/>
+    <param name="ang_vel_max" value="1.0"/>
+    <param name="rotate_duration" value="1"/>
+  </node> -->
+
+  <!-- <node pkg="sensor_analyst" type="chassis_control_node" name="lidar_exp2_cmd">
+    <param name="mode" value="3"/>
+    <param name="speed_max" value="1.0"/>
+    <param name="total_distance" value="1"/>
+  </node> -->
+
+
+</launch>
