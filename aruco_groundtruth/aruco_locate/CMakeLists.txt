@@ -155,6 +155,9 @@ target_link_libraries(map_avg_bd_node ${catkin_LIBRARIES})
 
 add_executable(aruco_locate_node src/aruco_locate_node.cpp)
 target_link_libraries(aruco_locate_node ${catkin_LIBRARIES})
+
+add_executable(LAway_locate_node src/LAway_locate.cpp)
+target_link_libraries(LAway_locate_node ${catkin_LIBRARIES})
 ## Specify libraries to link a library or executable target against
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
