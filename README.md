@@ -1,97 +1,40 @@
-# Eurobot-2024-Localization
+# ArUco for Ground Truth
 
-> Eurobot localization workspace for 2024
-
-- elaborate README allow a team to grow!
-- clear commit messages are benefitial for all!
-
-## Install ( unupdate )
-```bash=1
-# Move in ws
-chmod 777 install.sh
-./install.sh
-source ~/.bashrc
-```
-
-## Structure
-
-```
-.
-└──  Your Workspace
-     └── build
-     └── devel
-     └── src
-         └── Eurobot-2024-Localization
-             ├── .YDLidar-SDK
-             ├── docker
-             ├── eurobot_localization
-             ├── rival_localization
-             ├── lidar
-             │   ├── lidar_localization
-             │   └── ydlidar_ros_driver
-             ├── local_filter
-             │   ├── imu
-             │   │   ├── imu_drive
-             │   │   └── phidgets_drivers
-             │   ├── local_filter
-             │   └── odometry
-             │       ├── odometry
-             │       ├── rosserial_msgs
-             │       └── rosserial_server
-             ├── simulation
-             └── vive
-
-```
+## Procedure in brief
 
 
-## Architecture
-> Local filter ( IMU + Odometry ) + global filter ( LiDAR )
+## camera
 
-### Local filter
+### usb_cam
+#### publish: `/usb_cam/image_raw` `/usb_cam/camera_info`
+1. use camera_calibration package to get calibration parameters
+    - refer to: https://www.guyuehome.com/34043 , https://drive.google.com/file/d/1J7elOrq3Q9aIE20FrTNwBHpFSBAlwzIk/view?usp=sharing
+    - save parameters in ost.yaml
+    - add path to launch file
+2. check ```/dev/video*``` in /config/usb_cam.yaml
+    - can use ```v4l2-ctl --list-devices```
+3. ```roslaunch usb_cam usb_cam-test.launch```
 
-- Place all of the required component in local filter
-- Run with rosserial and imu firmmware
-```bash=1
-roslaunch local_filter local_filter.launch
-```
-- Run without rosserial but imu firmware
-```bash=1
-roslaunch local_filter local_filter_no_comm.launch # no such file now!
-```
-- Run without rosserial and imu firmware
-```bash=1
-roslaunch local_filter local_filter_no_firmware.launch # no such file now!
-```
+### image_proc
+#### subscribe: `/usb_cam/image_raw` `/usb_cam/camera_info`
+#### publish: `/usb_cam/image_rect`
+1. ```ROS_NAMESPACE=usb_cam rosrun image_proc image_proc```
 
-### Global filter
+## aruco_ros
+#### subscribe: `/usb_cam/image_rect`
+#### publish: `aruco_ros/single/marker`
+1. in launch file: check
+    - marker size (in m)
+        ```
+        <arg name="markerSize"      default="0.0137"/>
+        ```
+    - use calibrated image
+        ```
+        <remap from="/camera_info" to="/usb_cam/camera_info" />
+        <remap from="/image" to="/usb_cam/image_rect" />
+        ```
+2. ```roslaunch aruco_ros single.launch```
 
-- Place LiDAR driver and triangle localization in lidar
-- Place global filter in eurobot_localization
-- Run with only triangle localization
-```bash=1
-roslaunch lidar_localization lidar_localization_2023.launch # no such file now!
-```
-- Run with only lidar driver and triangle localization
-```bash=1
-roslaunch lidar_localization lidar_with_driver.launch
-```
-- Run global filter with lidar driver
-```bash=1
-roslaunch eurobot_localization global_ekf.launch
-```
-- Run global filter without lidar driver
-```bash=1
-roslaunch eurobot_localization global_ekf_without_lidar.launch # no such file now!
-```
+## aruco_locate
 
-### Together
-
-- Run all of the localization component
-```bash=1
-roslaunch eurobot_localization eurobot_localization.launch
-```
-
-### Local machine setup configure
-
-- Port name
-- Static TF for laser frame and imu frame
+## sensor_analyst
