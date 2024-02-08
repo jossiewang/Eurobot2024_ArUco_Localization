@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   sensor_msgs
+  aruco
+  aruco_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -107,7 +109,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES sensor_analyst
-#  CATKIN_DEPENDS geometry_msgs roscpp rospy std_msgs
+ CATKIN_DEPENDS geometry_msgs roscpp rospy std_msgs aruco_msgs aruco
 #  DEPENDS system_lib
 )
 
@@ -118,7 +120,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -170,6 +172,8 @@ target_link_libraries(chassis_control_node ${catkin_LIBRARIES})
 catkin_install_python(PROGRAMS
   scripts/err_analyst.py
   scripts/save_csv.py
+  scripts/animation.py
+  scripts/ani_multiple.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
