@@ -11,7 +11,7 @@ from matplotlib.animation import FuncAnimation
 class Visualiser:
     def __init__(self):
         self.fig, self.ax = plt.subplots()
-        self.ln, = plt.plot([],[],'ro')
+        self.ln, = plt.plot([],[],'co')
         self.x_data, self.y_data = [], []
         self.reset = True
         self.xlb = 0
@@ -26,7 +26,7 @@ class Visualiser:
         return self.ln
     #def getYaw(self, pose):
     def odom_callback(self,msg):
-        Mk = msg.markers[1]
+        Mk = msg.markers[5]
         #set graph boundary
         if self.reset:
             self.xlb = Mk.header.stamp.secs % 1000 - 1
