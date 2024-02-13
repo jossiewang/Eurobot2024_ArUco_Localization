@@ -58,9 +58,17 @@ class MarkerStatistics:
 
         # Calculate h_dot and t_dot
         c_dot = np.array([mean_values[1]['mean_x'], mean_values[1]['mean_y'], mean_values[1]['mean_z']]) - origin
+        h_dot = np.array([mean_values[7]['mean_x'], mean_values[7]['mean_y'], mean_values[7]['mean_z']]) - origin
+        t_dot = np.array([mean_values[8]['mean_x'], mean_values[8]['mean_y'], mean_values[8]['mean_z']]) - origin
         # Apply transformation
         c_tf = np.dot(inverse_transform_matrix, c_dot)
         print("reference:", c_tf)
+        h_tf = np.dot(inverse_transform_matrix, h_dot)
+        t_tf = np.dot(inverse_transform_matrix, t_dot)
+        print("robot head:", h_tf)
+        print("robot tail:", t_tf)
+        rob = (h_tf + t_tf)/2
+        print("robot:", rob)
 
         #calibration update
         self.i_cal *= reference_x/c_tf[0]
