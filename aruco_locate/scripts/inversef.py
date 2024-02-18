@@ -17,6 +17,23 @@ class MarkerStatistics:
         self.i_cal = 1
         self.j_cal = 1
 
+    # def y2realy(self, y):
+    #     z = ((2500*y)/117 - 1498878941/216217755)
+    #     self.y = 7074289/(492804*((z^2 - 2958.18765)^(1/2) - (2500*y)/117 + 1498878941/216217755)^(1/3)) + ((z^2 - 2958.18765)^(1/2) - (2500*y)/117 + 1498878941/216217755)^(1/3) + 233/702
+    #     return self.y
+    def y2realy(self, y):
+        self.y = -3.78882273506076*(-0.5 - 0.866025403784439*I)*(0.392863142969564*y + (0.154341449103924*(y - 0.324430037851424)**2 - 1)**0.5 - 0.127456604344045)**(1/3) + 0.331908831908832 - 3.78882273506077*(-0.5 + 0.866025403784439*I)/(0.392863142969564*y + (0.154341449103924*(y - 0.324430037851424)**2 - 1)**0.5 - 0.127456604344045)**(1/3)
+        return self.y
+    def x2realx(self, x):
+        self.x = ((5000*x)/493 + (((5000*x)/493 - 576913998/119823157)**2 + 112686495682124252897/387654901743059523)**(1/2) - 576913998/119823157)**(1/3) - 4830113/(729147*((5000*x)/493 + (((5000*x)/493 - 576913998/119823157)**2 + 112686495682124252897/387654901743059523)**(1/2) - 576913998/119823157)**(1/3)) + 223/493
+        return self.x
+    def x2realy(self, x):
+        self.y = (2500*(206889/1000000 - (329*x)/1250)**(1/2))/329 + 325/658
+        return self.y
+    def y2realx(self, y):
+        self.x = (2500*y)/103 - 2295/206
+        return self.x
+
     def odom_callback(self, msg):
         for marker_msg in msg.markers:
             marker_id = marker_msg.id
@@ -60,13 +77,21 @@ class MarkerStatistics:
         c_dot = np.array([mean_values[1]['mean_x'], mean_values[1]['mean_y'], mean_values[1]['mean_z']]) - origin
         h_dot = np.array([mean_values[7]['mean_x'], mean_values[7]['mean_y'], mean_values[7]['mean_z']]) - origin
         t_dot = np.array([mean_values[8]['mean_x'], mean_values[8]['mean_y'], mean_values[8]['mean_z']]) - origin
-        # print("M123:\n", h_dot[0],h_dot[1],h_dot[2])
-        # print("M456:\n", t_dot[0],t_dot[1],t_dot[2])
         # Apply transformation
         c_tf = np.dot(inverse_transform_matrix, c_dot)
         # print("M21 tf:\n", c_tf[0],c_tf[1],c_tf[2])
         h_tf = np.dot(inverse_transform_matrix, h_dot)
         t_tf = np.dot(inverse_transform_matrix, t_dot)
+
+        print("M123 tf:\n", h_tf[0],h_tf[1],h_tf[2])
+        print("M456 tf:\n", t_tf[0],t_tf[1],t_tf[2])
+
+        #use y2y x2x
+        h_tf[0] = self.x2realx(h_tf[0])
+        h_tf[1] = self.y2realy(h_tf[1])
+        t_tf[0] = self.x2realx(t_tf[0])
+        t_tf[1] = self.y2realy(t_tf[1])
+
         print("M123 tf:\n", h_tf[0],h_tf[1],h_tf[2])
         print("M456 tf:\n", t_tf[0],t_tf[1],t_tf[2])
         # rob = (h_tf + t_tf)/2
@@ -84,7 +109,6 @@ class MarkerStatistics:
         # print("ref error x:", error_x)
         # print("ref error y", error_y)
         # print("ref error xy:", error_distance)
-
 
 # Initialize node and marker statistics object
 rospy.init_node('marker_statistics')
