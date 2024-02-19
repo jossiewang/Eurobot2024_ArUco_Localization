@@ -5,17 +5,13 @@ import numpy as np
 import csv
 
 class MarkerStatistics:
-    def __init__(self, csv_file, origin_id, i_end_id, j_end_id, reference_x, reference_y):
+    def __init__(self, csv_file, origin_id, i_end_id, j_end_id):
         self.csv_file = csv_file
         self.marker_stats = {}  # Dictionary to store statistics for each marker
 
         self.origin_id = origin_id
         self.i_end_id = i_end_id
         self.j_end_id = j_end_id
-        self.reference_x = reference_x
-        self.reference_y = reference_y
-        self.i_cal = 1
-        self.j_cal = 1
 
     def odom_callback(self, msg):
         for marker_msg in msg.markers:
@@ -72,20 +68,6 @@ class MarkerStatistics:
         # rob = (h_tf + t_tf)/2
         # print("robot:", rob)
 
-        #calibration update
-        # self.i_cal *= reference_x/c_tf[0]
-        # self.j_cal *= reference_y/c_tf[1]
-        # Calculate error
-        # error_x = abs(self.reference_x - c_tf[0])
-        # error_y = abs(self.reference_y - c_tf[1])
-        # error_distance = np.linalg.norm([self.reference_x - c_tf[0], self.reference_y - c_tf[1]])
-
-        # # Print errors
-        # print("ref error x:", error_x)
-        # print("ref error y", error_y)
-        # print("ref error xy:", error_distance)
-
-
 # Initialize node and marker statistics object
 rospy.init_node('marker_statistics')
 csv_file_path = '/home/jossiewang/eurobot2024_ws/src/Eurobot2024_ArUco_Localization/sensor_analyst/data/std.csv'  # Path to the CSV file
@@ -99,18 +81,20 @@ reference_y = float(input("Enter the reference Y position: "))
 
 marker_stats = MarkerStatistics(csv_file_path, origin_id, i_end_id, j_end_id, reference_x, reference_y)
 
-# Subscribe to marker topic
-sub = rospy.Subscriber('/aruco_marker_publisher/markers', MarkerArray, marker_stats.odom_callback)
-
-# Spin
-rospy.spin()
-
 # Read CSV file and store contents
 csv_data = []
 with open('table.csv', 'r') as csv_file:
     csv_reader = csv.DictReader(csv_file)
     for row in csv_reader:
         csv_data.append(row)
+
+
+# Subscribe to marker topic
+sub = rospy.Subscriber('/aruco_marker_publisher/markers', MarkerArray, marker_stats.odom_callback)
+
+# Spin
+rospy.spin()
+
 
 # Function for linear interpolation
 def interpolation(lower_bound, upper_bound, value):

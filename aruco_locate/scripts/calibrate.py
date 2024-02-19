@@ -64,26 +64,13 @@ class MarkerStatistics:
         # print("M456:\n", t_dot[0],t_dot[1],t_dot[2])
         # Apply transformation
         c_tf = np.dot(inverse_transform_matrix, c_dot)
-        # print("M21 tf:\n", c_tf[0],c_tf[1],c_tf[2])
+        print("M21 tf:\n", c_tf[0],c_tf[1],c_tf[2])
         h_tf = np.dot(inverse_transform_matrix, h_dot)
         t_tf = np.dot(inverse_transform_matrix, t_dot)
         print("M123 tf:\n", h_tf[0],h_tf[1],h_tf[2])
         print("M456 tf:\n", t_tf[0],t_tf[1],t_tf[2])
         # rob = (h_tf + t_tf)/2
         # print("robot:", rob)
-
-        #calibration update
-        # self.i_cal *= reference_x/c_tf[0]
-        # self.j_cal *= reference_y/c_tf[1]
-        # Calculate error
-        # error_x = abs(self.reference_x - c_tf[0])
-        # error_y = abs(self.reference_y - c_tf[1])
-        # error_distance = np.linalg.norm([self.reference_x - c_tf[0], self.reference_y - c_tf[1]])
-
-        # # Print errors
-        # print("ref error x:", error_x)
-        # print("ref error y", error_y)
-        # print("ref error xy:", error_distance)
 
 
 # Initialize node and marker statistics object

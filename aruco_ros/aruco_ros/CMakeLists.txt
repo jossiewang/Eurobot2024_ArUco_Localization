@@ -54,6 +54,9 @@ include_directories(
  add_dependencies(marker_publisher ${PROJECT_NAME}_gencfg ${catkin_EXPORTED_TARGETS})
  target_link_libraries(marker_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
+ add_executable(camera_info_publisher src/camInfo.cpp)
+ target_link_libraries(camera_info_publisher ${catkin_LIBRARIES}) 
+
 #############
 ## Install ##
 #############
