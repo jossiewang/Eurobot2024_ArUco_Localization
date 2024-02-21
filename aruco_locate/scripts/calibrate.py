@@ -56,17 +56,26 @@ class MarkerStatistics:
         transform_matrix = np.vstack([i_dot, j_dot, z_dot]).T
         inverse_transform_matrix = np.linalg.inv(transform_matrix)
 
+        #raw
+        print("raw M21:\n", [mean_values[1]['mean_x'], mean_values[1]['mean_y'], mean_values[1]['mean_z']])
+        print("raw M123:\n", [mean_values[7]['mean_x'], mean_values[7]['mean_y'], mean_values[7]['mean_z']])
+        print("raw M456:\n", [mean_values[8]['mean_x'], mean_values[8]['mean_y'], mean_values[8]['mean_z']])
+
         # Calculate h_dot and t_dot
         c_dot = np.array([mean_values[1]['mean_x'], mean_values[1]['mean_y'], mean_values[1]['mean_z']]) - origin
         h_dot = np.array([mean_values[7]['mean_x'], mean_values[7]['mean_y'], mean_values[7]['mean_z']]) - origin
         t_dot = np.array([mean_values[8]['mean_x'], mean_values[8]['mean_y'], mean_values[8]['mean_z']]) - origin
-        # print("M123:\n", h_dot[0],h_dot[1],h_dot[2])
-        # print("M456:\n", t_dot[0],t_dot[1],t_dot[2])
+        print("M123:\n", h_dot[0],h_dot[1],h_dot[2])
+        print("M456:\n", t_dot[0],t_dot[1],t_dot[2])
         # Apply transformation
         c_tf = np.dot(inverse_transform_matrix, c_dot)
         print("M21 tf:\n", c_tf[0],c_tf[1],c_tf[2])
         h_tf = np.dot(inverse_transform_matrix, h_dot)
+        h_tf[0] = (h_tf[0]+0.0549)/1.03
+        h_tf[1] = (h_tf[1]+0.045)/0.983
         t_tf = np.dot(inverse_transform_matrix, t_dot)
+        t_tf[0] = (t_tf[0]+0.0549)/1.03
+        t_tf[1] = (t_tf[1]+0.045)/0.983        
         print("M123 tf:\n", h_tf[0],h_tf[1],h_tf[2])
         print("M456 tf:\n", t_tf[0],t_tf[1],t_tf[2])
         # rob = (h_tf + t_tf)/2

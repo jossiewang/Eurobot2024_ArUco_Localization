@@ -57,16 +57,17 @@ class MarkerStatistics:
         inverse_transform_matrix = np.linalg.inv(transform_matrix)
 
         #raw
-        print("raw M21:\n", mean_values[1]['mean_x'], mean_values[1]['mean_y'], mean_values[1]['mean_z'])
+        # print("raw M21:\n", mean_values[1]['mean_x'], mean_values[1]['mean_y'], mean_values[1]['mean_z'])
         # print("raw M123:\n", mean_values[7]['mean_x'], mean_values[7]['mean_y'], mean_values[7]['mean_z'])
         # print("raw M456:\n", mean_values[8]['mean_x'], mean_values[8]['mean_y'], mean_values[8]['mean_z'])
-        print("raw M789:\n", mean_values[9]['mean_x'], mean_values[9]['mean_y'], mean_values[9]['mean_z'])
-        print("raw M987:\n", mean_values[10]['mean_x'], mean_values[10]['mean_y'], mean_values[10]['mean_z'])
-        print("raw M654:\n", mean_values[11]['mean_x'], mean_values[11]['mean_y'], mean_values[11]['mean_z'])
-        print("raw M321:\n", mean_values[12]['mean_x'], mean_values[12]['mean_y'], mean_values[12]['mean_z'])
+        print("-----------")
+        print(mean_values[9]['mean_x'], mean_values[9]['mean_y'], mean_values[9]['mean_z'])
+        print(mean_values[10]['mean_x'], mean_values[10]['mean_y'], mean_values[10]['mean_z'])
+        print(mean_values[11]['mean_x'], mean_values[11]['mean_y'], mean_values[11]['mean_z'])
+        print(mean_values[12]['mean_x'], mean_values[12]['mean_y'], mean_values[12]['mean_z'])
 
         # Calculate h_dot and t_dot
-        c_dot = np.array([mean_values[1]['mean_x'], mean_values[1]['mean_y'], mean_values[1]['mean_z']]) - origin
+        # c_dot = np.array([mean_values[1]['mean_x'], mean_values[1]['mean_y'], mean_values[1]['mean_z']]) - origin
         # h_dot = np.array([mean_values[7]['mean_x'], mean_values[7]['mean_y'], mean_values[7]['mean_z']]) - origin
         # t_dot = np.array([mean_values[8]['mean_x'], mean_values[8]['mean_y'], mean_values[8]['mean_z']]) - origin
         M789_dot = np.array([mean_values[9]['mean_x'], mean_values[9]['mean_y'], mean_values[9]['mean_z']]) - origin
@@ -75,13 +76,13 @@ class MarkerStatistics:
         M321_dot = np.array([mean_values[12]['mean_x'], mean_values[12]['mean_y'], mean_values[12]['mean_z']]) - origin
         # print("M123:\n", h_dot[0],h_dot[1],h_dot[2])
         # print("M456:\n", t_dot[0],t_dot[1],t_dot[2])
-        print("M789:\n", M789_dot[0], M789_dot[1], M789_dot[2])
-        print("M987:\n", M987_dot[0], M987_dot[1], M987_dot[2])
-        print("M654:\n", M654_dot[0], M654_dot[1], M654_dot[2])
-        print("M321:\n", M321_dot[0], M321_dot[1], M321_dot[2])
+        # print("M789:\n", M789_dot[0], M789_dot[1], M789_dot[2])
+        # print("M987:\n", M987_dot[0], M987_dot[1], M987_dot[2])
+        # print("M654:\n", M654_dot[0], M654_dot[1], M654_dot[2])
+        # print("M321:\n", M321_dot[0], M321_dot[1], M321_dot[2])
         # Apply transformation
-        c_tf = np.dot(inverse_transform_matrix, c_dot)
-        print("M21 tf:\n", c_tf[0],c_tf[1],c_tf[2])
+        # c_tf = np.dot(inverse_transform_matrix, c_dot)
+        # print("M21 tf:\n", c_tf[0],c_tf[1],c_tf[2])
         # h_tf = np.dot(inverse_transform_matrix, h_dot)
         # t_tf = np.dot(inverse_transform_matrix, t_dot)
         # print("M123 tf:\n", h_tf[0],h_tf[1],h_tf[2])
@@ -90,10 +91,10 @@ class MarkerStatistics:
         M987_tf = np.dot(inverse_transform_matrix, M987_dot)
         M654_tf = np.dot(inverse_transform_matrix, M654_dot)
         M321_tf = np.dot(inverse_transform_matrix, M321_dot)
-        print("M789_tf:\n", M789_tf[0], M789_tf[1], M789_tf[2])
-        print("M789_tf:\n", M987_tf[0], M987_tf[1], M987_tf[2])
-        print("M789_tf:\n", M654_tf[0], M654_tf[1], M654_tf[2])
-        print("M789_tf:\n", M321_tf[0], M321_tf[1], M321_tf[2])
+        print(M789_tf[0], M789_tf[1], M789_tf[2])
+        print(M987_tf[0], M987_tf[1], M987_tf[2])
+        print(M654_tf[0], M654_tf[1], M654_tf[2])
+        print(M321_tf[0], M321_tf[1], M321_tf[2])
         # rob = (h_tf + t_tf)/2
         # print("robot:", rob)
 
