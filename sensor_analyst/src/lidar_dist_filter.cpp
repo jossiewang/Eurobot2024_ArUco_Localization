@@ -90,8 +90,8 @@ int main(int argc, char **argv)
     // Read parameters from the launch file
     double angle_lb, angle_ub;
     ros::NodeHandle private_nh("~");
-    private_nh.param("angle_lb", angle_lb, -161.0);
-    private_nh.param("angle_ub", angle_ub, -159.0);
+    private_nh.param("angle_lb", angle_lb, 89.0);
+    private_nh.param("angle_ub", angle_ub, 91.0);
 
     LidarFilterNode lidar_filter_node(angle_lb, angle_ub);
     ros::spin();
