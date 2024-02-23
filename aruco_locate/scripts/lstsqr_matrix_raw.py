@@ -1,13 +1,35 @@
 import rospy
-from geometry_msgs import PoseStamped
+from geometry_msgs.msg import PoseStamped
 from aruco_msgs.msg import MarkerArray
 from aruco_msgs.msg import Marker
 import numpy as np
+import math
 import csv
+
+def get_quaternion_from_euler(roll, pitch, yaw):
+  """
+  Convert an Euler angle to a quaternion.
+   
+  Input
+    :param roll: The roll (rotation around x-axis) angle in radians.
+    :param pitch: The pitch (rotation around y-axis) angle in radians.
+    :param yaw: The yaw (rotation around z-axis) angle in radians.
+ 
+  Output
+    :return qx, qy, qz, qw: The orientation in quaternion [x,y,z,w] format
+  """
+  qx = np.sin(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) - np.cos(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+  qy = np.cos(roll/2) * np.sin(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.cos(pitch/2) * np.sin(yaw/2)
+  qz = np.cos(roll/2) * np.cos(pitch/2) * np.sin(yaw/2) - np.sin(roll/2) * np.sin(pitch/2) * np.cos(yaw/2)
+  qw = np.cos(roll/2) * np.cos(pitch/2) * np.cos(yaw/2) + np.sin(roll/2) * np.sin(pitch/2) * np.sin(yaw/2)
+ 
+  return [qx, qy, qz, qw]
 
 class MarkerStatistics:
     def __init__(self):
         self.marker_stats = {}  # Dictionary to store statistics for each marker
+        self.start_time = rospy.Time.now()  # Start time for calculating the mean
+        self.max_history_size = 30  # Maximum size of history data
 
     def odom_callback(self, msg):
         for marker_msg in msg.markers:
@@ -22,6 +44,7 @@ class MarkerStatistics:
             self.marker_stats[marker_id]['x_data'].append(x)
             self.marker_stats[marker_id]['y_data'].append(y)
             self.marker_stats[marker_id]['z_data'].append(z)
+            self.trim_history(marker_id)
 
         # Calculate mean values for each marker
         mean_values = {}
@@ -56,20 +79,33 @@ class MarkerStatistics:
         M654_tf = M654_raw @ lstCalib
         M321_tf = M321_raw @ lstCalib
 
-        print("M21: ", M21_tf[0],M21_tf[1],M21_tf[2])
-        print("M20: ", M20_tf[0],M20_tf[1],M20_tf[2])
-        print("M23: ", M23_tf[0],M23_tf[1],M23_tf[2])
-        # print("M123:", M123_tf[0], M123_tf[1], M123_tf[2])
-        # print("M456:", M456_tf[0], M456_tf[1], M789_tf[2])
-        print("M789:", M789_tf[0], M789_tf[1], M789_tf[2])
-        print("M987:", M987_tf[0], M987_tf[1], M987_tf[2])
-        print("M654:", M654_tf[0], M654_tf[1], M654_tf[2])
-        print("M321", M321_tf[0], M321_tf[1], M321_tf[2])
+        #robot pose
+        rob_pose = PoseStamped()
+        rob_pose.header = msg.header
+        rob_pose.pose.position.x = (M789_tf[0]+M987_tf[0])/2
+        rob_pose.pose.position.y = (M789_tf[1]+M987_tf[1])/2
+        rob_pose.pose.position.z = (M789_tf[2]+M987_tf[2])/2
+        face_dir = math.atan2(rob_pose.pose.position.x, rob_pose.pose.position.y)
+        qt = get_quaternion_from_euler(0, 0, face_dir)
+        rob_pose.pose.orientation.x = qt[0]
+        rob_pose.pose.orientation.y = qt[1]
+        rob_pose.pose.orientation.z = qt[2]
+        rob_pose.pose.orientation.w = qt[3]
+
+        pub.publish(rob_pose)
+
+    def trim_history(self, marker_id):
+        # Trim history to maintain the maximum size
+        if len(self.marker_stats[marker_id]['x_data']) > self.max_history_size:
+            self.marker_stats[marker_id]['x_data'] = self.marker_stats[marker_id]['x_data'][-self.max_history_size:]
+            self.marker_stats[marker_id]['y_data'] = self.marker_stats[marker_id]['y_data'][-self.max_history_size:]
+            self.marker_stats[marker_id]['z_data'] = self.marker_stats[marker_id]['z_data'][-self.max_history_size:]
+
 
 # Initialize node and marker statistics object
 rospy.init_node('marker_statistics')
 
-marker_stats = MarkerStatistics(csv_file_path, origin_id, i_end_id, j_end_id, reference_x, reference_y)
+marker_stats = MarkerStatistics()
 
 # Subscribe to marker topic
 sub = rospy.Subscriber('/aruco_marker_publisher/markers', MarkerArray, marker_stats.odom_callback)
