@@ -46,12 +46,12 @@ public:
         for (int i = angle_min_index; i <= angle_max_index && i < msg->ranges.size(); ++i)
         {
             double angle = angle_min_LD + i * angle_increment;
-            ROS_INFO("at angle %lf, index %d", angle, i);
+            // ROS_INFO("at angle %lf, index %d", angle, i);
             if (std::isfinite(msg->ranges[i]) && msg->intensities[i] > 1000)
             {
                 total_distance += msg->ranges[i];
                 num_measurements++;
-                ROS_INFO("at angle %lf, range is %f", angle, msg->ranges[i]);
+                // ROS_INFO("at angle %lf, range is %f", angle, msg->ranges[i]);
             }
         }
 
@@ -90,8 +90,8 @@ int main(int argc, char **argv)
     // Read parameters from the launch file
     double angle_lb, angle_ub;
     ros::NodeHandle private_nh("~");
-    private_nh.param("angle_lb", angle_lb, 89.0);
-    private_nh.param("angle_ub", angle_ub, 91.0);
+    private_nh.param("angle_lb", angle_lb, 89.5);
+    private_nh.param("angle_ub", angle_ub, 90.5);
 
     LidarFilterNode lidar_filter_node(angle_lb, angle_ub);
     ros::spin();

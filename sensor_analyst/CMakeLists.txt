@@ -173,7 +173,7 @@ catkin_install_python(PROGRAMS
   scripts/err_analyst.py
   scripts/save_csv.py
   scripts/animation.py
-  scripts/ani_multiple.py
+  # scripts/ani_multiple.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
